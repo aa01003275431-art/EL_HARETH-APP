@@ -1,2143 +1,647 @@
 <!DOCTYPE html>
 <html lang="ar" dir="rtl">
 <head>
+    <link rel="manifest" href="manifest.json">
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title id="app-title-tag">نظام الحارث EL_HARETH</title>
-    <!-- مكتبة قراءة الكيو آر كود (QR Scanner) -->
-    <script src="https://unpkg.com/html5-qrcode" type="text/javascript"></script>
-    <!-- مكتبة تحميل وتحويل العناصر إلى PDF مباشرة (html2pdf.js) -->
-    <script src="https://cdnjs.cloudflare.com/ajax/libs/html2pdf.js/0.10.1/html2pdf.bundle.min.js"></script>
+    <title>نظام إدارة السنتر والقاعات والحسابات</title>
+    
+    <meta name="theme-color" content="#1e293b">
+    <meta name="mobile-web-app-capable" content="yes">
+    <meta name="apple-mobile-web-app-capable" content="yes">
+    <meta name="apple-mobile-web-app-status-bar-style" content="black-translucent">
+    <meta name="apple-mobile-web-app-title" content="سنتر المزجنجي">
+    
+    <link rel="icon" type="image/png" href="https://via.placeholder.com/192x192/2563eb/ffffff?text=LOGO">
+    <link rel="apple-touch-icon" href="https://via.placeholder.com/192x192/2563eb/ffffff?text=LOGO">
+
+    <link href="https://fonts.googleapis.com/css2?family=Cairo:wght@400;600;700;800&display=swap" rel="stylesheet">
+    <script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
     
     <style>
         :root {
-            --bg-gradient: linear-gradient(135deg, #0f172a 0%, #1e293b 100%);
-            --card-bg: rgba(255, 255, 255, 0.92);
+            --bg-image: url('https://i.postimg.cc/gj62bJ1g/Gemini-Generated-Image-bk1epvbk1epvbk1e.png'); 
+            --bg-overlay: rgba(241, 245, 249, 0.20); 
+            
+            --card-bg: rgba(255, 255, 255, 0.90);
             --text-color: #0f172a;
             --subtext-color: #334155;
-            --header-bg: #1e293b;
+            --header-bg: rgba(30, 41, 59, 0.95);
             --border-color: #cbd5e1;
-            --input-bg: #ffffff;
-            --table-th-bg: #e2e8f0;
+            --input-bg: rgba(255, 255, 255, 0.95);
+            --primary: #2563eb;
+            --success: #16a34a;
+            --danger: #dc2626;
+            --warning: #d97706;
         }
 
         body.dark-mode {
-            --bg-gradient: linear-gradient(135deg, #020617 0%, #0f172a 100%);
-            --card-bg: rgba(30, 41, 59, 0.92);
-            --text-color: #f8fafc !important;
-            --subtext-color: #cbd5e1 !important;
-            --header-bg: #020617 !important;
-            --border-color: #475569 !important;
-            --input-bg: #334155 !important;
-            --table-th-bg: #334155 !important;
+            --bg-overlay: rgba(15, 23, 42, 0.35); 
+            --card-bg: rgba(30, 41, 59, 0.90);
+            --text-color: #f8fafc;
+            --subtext-color: #cbd5e1;
+            --header-bg: rgba(2, 6, 23, 0.95);
+            --border-color: #475569;
+            --input-bg: rgba(51, 65, 85, 0.9);
         }
 
         * { 
             box-sizing: border-box; 
             margin: 0; 
             padding: 0; 
-            font-family: system-ui, -apple-system, sans-serif; 
+            font-family: 'Cairo', sans-serif; 
             transition: background-color 0.2s, color 0.2s, border-color 0.2s; 
         }
 
         body { 
-            background: var(--bg-gradient);
+            background-image: linear-gradient(var(--bg-overlay), var(--bg-overlay)), var(--bg-image);
             background-size: cover;
             background-position: center;
+            background-repeat: no-repeat;
             background-attachment: fixed;
             color: var(--text-color); 
-            padding: 10px; 
+            padding: 12px; 
             direction: rtl; 
             min-height: 100vh;
         }
 
-        .container { max-width: 1000px; margin: 0 auto; }
-        
-        header { 
-            background: var(--header-bg); 
-            color: white; 
-            padding: 15px; 
-            border-radius: 12px; 
-            margin-bottom: 15px; 
+        .container { max-width: 1100px; margin: 0 auto; }
+
+        header {
+            background: var(--header-bg);
+            color: white;
+            padding: 12px 20px;
+            border-radius: 12px;
+            margin-bottom: 15px;
             display: flex;
             justify-content: space-between;
             align-items: center;
             flex-wrap: wrap;
             gap: 10px;
-            box-shadow: 0 4px 10px rgba(0,0,0,0.3);
+            backdrop-filter: blur(8px);
         }
 
-        .brand-container {
+        .center-title {
             display: flex;
             align-items: center;
             gap: 10px;
         }
 
-        .brand-logo {
-            max-height: 45px;
-            max-width: 45px;
-            border-radius: 6px;
+        /* تنسيق صورة اللوجو الـ PNG */
+        .center-logo {
+            max-height: 55px;
+            width: auto;
             object-fit: contain;
-            display: none;
+            filter: drop-shadow(0px 2px 4px rgba(0,0,0,0.2));
         }
 
-        header h1 { font-size: 1.1rem; color: #ffffff; }
-
-        .time-box {
-            background: rgba(255,255,255,0.1);
-            padding: 5px 12px;
-            border-radius: 6px;
-            font-size: 0.85rem;
-            color: #38bdf8;
-            font-weight: bold;
+        .nav-tabs {
             display: flex;
-            align-items: center;
-            gap: 6px;
+            gap: 8px;
+            margin-bottom: 15px;
+            overflow-x: auto;
+            padding-bottom: 5px;
         }
 
-        .header-controls {
-            display: flex;
-            gap: 6px;
-            flex-wrap: wrap;
-            align-items: center;
-            width: 100%;
+        .tab-btn {
+            padding: 10px 16px;
+            background: var(--card-bg);
+            border: 1px solid var(--border-color);
+            border-radius: 8px;
+            cursor: pointer;
+            font-weight: 700;
+            color: var(--text-color);
+            white-space: nowrap;
+            backdrop-filter: blur(8px);
         }
 
-        @media (min-width: 600px) {
-            header h1 { font-size: 1.3rem; }
-            .header-controls { width: auto; }
-            body { padding: 15px; }
+        .tab-btn.active { 
+            background: var(--primary); 
+            color: white; 
+            border-color: var(--primary); 
         }
 
         .btn { 
-            padding: 8px 10px; 
+            padding: 9px 14px; 
             border: none; 
             border-radius: 6px; 
             cursor: pointer; 
-            font-weight: bold; 
-            font-size: 0.82rem; 
-            transition: 0.2s; 
-            text-decoration: none; 
+            font-weight: 700; 
+            font-size: 0.85rem; 
             display: inline-flex; 
             align-items: center; 
-            justify-content: center;
-            gap: 4px; 
-            white-space: nowrap;
+            justify-content: center; 
+            gap: 5px; 
         }
-        .btn-primary { background: #2563eb; color: white; }
-        .btn-success { background: #16a34a; color: white; }
-        .btn-danger { background: #dc2626; color: white; }
-        .btn-warning { background: #d97706; color: white; }
-        .btn-secondary { background: #64748b; color: white; }
-        .btn-theme { background: #8b5cf6; color: white; }
-        .btn-info { background: #0284c7; color: white; }
-        .btn-report { background: #059669; color: white; }
-        .btn-qr { background: #7c3aed; color: white; }
-        .btn:hover { opacity: 0.9; }
+        .btn-primary { background: var(--primary); color: white; }
+        .btn-success { background: var(--success); color: white; }
+        .btn-danger { background: var(--danger); color: white; }
+        .btn-warning { background: var(--warning); color: white; }
 
-        .action-btns {
-            display: flex;
-            gap: 4px;
-            flex-wrap: wrap;
-        }
-
-        .view { display: none; }
-        .view.active { display: block; }
-        
-        .breadcrumb-container {
-            display: flex;
-            align-items: center;
-            justify-content: space-between;
+        .form-box {
             background: var(--card-bg);
-            padding: 10px 15px;
-            border-radius: 8px;
-            margin-bottom: 15px;
-            border: 1px solid var(--border-color);
-        }
-
-        .breadcrumb { font-size: 0.85rem; color: var(--subtext-color); }
-        .breadcrumb span { color: #2563eb; cursor: pointer; font-weight: bold; }
-        body.dark-mode .breadcrumb span { color: #60a5fa; }
-        
-        .grid { display: grid; grid-template-columns: repeat(auto-fill, minmax(160px, 1fr)); gap: 12px; margin-top: 15px; }
-        @media (min-width: 600px) {
-            .grid { grid-template-columns: repeat(auto-fill, minmax(220px, 1fr)); gap: 15px; }
-        }
-
-        .card { 
-            background: var(--card-bg); 
-            padding: 15px; 
-            border-radius: 10px; 
-            border: 1px solid var(--border-color); 
-            text-align: center; 
-            cursor: pointer; 
-            position: relative; 
-            box-shadow: 0 4px 6px -1px rgba(0, 0, 0, 0.1);
-            display: flex;
-            flex-direction: column;
-            justify-content: space-between;
-            gap: 10px;
-        }
-        .card h3 { color: var(--text-color); font-size: 1.05rem; }
-        .card p { color: var(--subtext-color); font-size: 0.85rem; }
-        .card:hover { border-color: #3b82f6; }
-        
-        .card-actions {
-            margin-top: 5px;
-            display: flex;
-            justify-content: center;
-            gap: 4px;
-            flex-wrap: wrap;
-        }
-
-        .report-summary-box { 
-            background: var(--card-bg); 
-            padding: 15px; 
-            border-radius: 10px; 
-            margin-bottom: 15px; 
-            border: 1px solid var(--border-color); 
-            box-shadow: 0 4px 6px -1px rgba(0, 0, 0, 0.1);
-            display: flex;
-            justify-content: space-between;
-            align-items: center;
-            flex-wrap: wrap;
-            gap: 10px;
-        }
-
-        .absent-bar {
-            background: var(--card-bg);
-            padding: 12px 15px;
+            padding: 15px;
             border-radius: 10px;
-            margin-bottom: 15px;
             border: 1px solid var(--border-color);
-            display: flex;
-            justify-content: space-between;
-            align-items: center;
-            flex-wrap: wrap;
-            gap: 10px;
-        }
-        .absent-info { font-weight: bold; font-size: 0.95rem; }
-        .absent-actions { display: flex; gap: 8px; flex-wrap: wrap; }
-
-        .table-container { 
-            background: var(--card-bg); 
-            border-radius: 10px; 
-            overflow-x: auto; 
-            border: 1px solid var(--border-color); 
-            margin-top: 15px; 
+            margin-bottom: 15px;
+            backdrop-filter: blur(8px);
             box-shadow: 0 4px 6px -1px rgba(0, 0, 0, 0.1);
-            -webkit-overflow-scrolling: touch;
         }
-        table { width: 100%; border-collapse: collapse; text-align: right; font-size: 0.85rem; min-width: 600px; }
-        th, td { padding: 10px; border-bottom: 1px solid var(--border-color); color: var(--text-color); white-space: nowrap; }
-        th { background: var(--table-th-bg); color: var(--text-color); }
-        
-        input[type="text"], input[type="number"], input[type="tel"], input[type="time"], textarea, select { 
-            width: 100%; 
-            padding: 10px; 
-            margin: 5px 0 10px; 
-            border: 1px solid var(--border-color); 
-            border-radius: 6px; 
-            background-color: var(--input-bg);
+
+        .grid-inputs {
+            display: grid;
+            grid-template-columns: repeat(auto-fit, minmax(180px, 1fr));
+            gap: 10px;
+            margin-top: 10px;
+        }
+
+        input, select {
+            width: 100%;
+            padding: 9px;
+            border: 1px solid var(--border-color);
+            border-radius: 6px;
+            background: var(--input-bg);
             color: var(--text-color);
             font-size: 0.9rem;
         }
 
-        .inputs-grid {
-            display: grid;
-            grid-template-columns: 1fr;
-            gap: 5px;
-        }
-
-        @media (min-width: 600px) {
-            .inputs-grid { grid-template-columns: 1fr 1fr 1fr; gap: 10px; }
-        }
-
-        .search-box {
-            background: var(--card-bg);
-            padding: 10px 12px;
-            border-radius: 8px;
-            margin-bottom: 15px;
-            border: 1px solid var(--border-color);
-        }
-
-        .search-box input {
-            margin: 0;
-            font-size: 0.9rem;
-        }
-
-        .form-box { 
+        .table-container { 
+            overflow-x: auto; 
             background: var(--card-bg); 
-            padding: 12px; 
-            border-radius: 8px; 
-            margin-bottom: 15px; 
+            border-radius: 10px; 
             border: 1px solid var(--border-color); 
+            backdrop-filter: blur(8px);
             box-shadow: 0 4px 6px -1px rgba(0, 0, 0, 0.1);
         }
-        .form-box h3 { color: var(--text-color); margin-bottom: 8px; font-size: 0.95rem; }
+        table { width: 100%; border-collapse: collapse; text-align: right; font-size: 0.85rem; min-width: 700px; }
+        th, td { padding: 10px; border-bottom: 1px solid var(--border-color); white-space: nowrap; color: var(--text-color); }
+        th { background: rgba(0,0,0,0.08); font-weight: 700; }
 
-        .student-code {
-            background: #2563eb;
-            color: white;
-            padding: 2px 6px;
-            border-radius: 4px;
-            font-weight: bold;
-            font-size: 0.75rem;
-            margin-left: 5px;
-        }
-
-        .score-input {
-            width: 80px !important;
-            margin: 0 !important;
-            padding: 6px !important;
-            text-align: center;
-        }
-
-        #status-notification {
-            display: none;
+        .summary-card {
+            background: rgba(37, 99, 235, 0.1);
+            border: 1px solid var(--primary);
             padding: 12px;
             border-radius: 8px;
-            margin-bottom: 15px;
-            font-weight: bold;
+            margin-top: 10px;
+            display: grid;
+            grid-template-columns: repeat(auto-fit, minmax(130px, 1fr));
+            gap: 10px;
             text-align: center;
         }
 
-        .modal-overlay {
-            display: none;
-            position: fixed;
-            top: 0; left: 0; width: 100%; height: 100%;
-            background: rgba(0,0,0,0.6);
-            z-index: 999;
-            justify-content: center;
-            align-items: center;
-            padding: 15px;
-        }
-        .modal-overlay.active { display: flex; }
-        .modal-card {
-            background: var(--card-bg);
-            border: 1px solid var(--border-color);
-            border-radius: 12px;
-            padding: 20px;
-            width: 100%;
-            max-width: 650px;
-            max-height: 85vh;
-            overflow-y: auto;
-            box-shadow: 0 10px 25px rgba(0,0,0,0.4);
-        }
+        .summary-item h4 { font-size: 0.8rem; color: var(--subtext-color); }
+        .summary-item p { font-size: 1.1rem; font-weight: 800; color: var(--primary); }
 
-        .badge-schedule {
-            background: #0284c7;
-            color: white;
-            font-size: 0.75rem;
-            padding: 3px 6px;
-            border-radius: 4px;
-            display: inline-block;
-            margin-top: 5px;
-        }
-
-        /* تنسيقات كارت الطالب الديناميكية بالمليمتر (mm) */
-        .id-card-template {
-            border-radius: 12px;
-            box-shadow: 0 8px 20px rgba(0,0,0,0.3);
-            position: relative;
-            margin: 10px auto;
-            overflow: hidden;
-            box-sizing: border-box;
-        }
-        .id-card-qr { 
-            background: #ffffff !important; 
-            padding: 2px; 
-            border-radius: 6px; 
-            display: flex; 
-            align-items: center; 
-            justify-content: center; 
-            box-shadow: 0 2px 8px rgba(0,0,0,0.2);
-            z-index: 5;
-            position: absolute;
-            flex-shrink: 0;
-            box-sizing: border-box;
-        }
-
-        /* تنسيقات الطباعة */
-        @media print {
-            body { background: white !important; color: black !important; padding: 0; }
-            header, .breadcrumb-container, .form-box, .search-box, .btn, .action-btns, .modal-overlay { display: none !important; }
-            .container { max-width: 100% !important; margin: 0 !important; }
-            .print-only-report { display: block !important; }
-            table { min-width: 100% !important; border: 1px solid #000 !important; }
-            th, td { border: 1px solid #000 !important; color: black !important; padding: 6px !important; }
-            th { background: #f1f5f9 !important; }
-        }
-
-        .print-only-report { display: none; }
+        .view-section { display: none; }
+        .view-section.active { display: block; }
     </style>
 </head>
 <body>
 
 <div class="container">
     <header>
-        <div class="brand-container">
-            <img id="app-logo" class="brand-logo" alt="لوجو البرنامح">
-            <div>
-                <h1 id="app-title-display">نظام الحارث EL_HARETH</h1>
-                <div class="time-box" id="live-clock">🕒 جاري جلب الوقت والتاريخ...</div>
-            </div>
+        <div class="center-title">
+            <img src="https://via.placeholder.com/200x60/2563eb/ffffff?text=LOGO+PNG" alt="لوجو السنتر" class="center-logo">
         </div>
-        <div class="header-controls">
-            <button class="btn btn-primary" onclick="openScannerModal()">📷 اسكان الكيو آر (حضور)</button>
-            <button class="btn btn-report" onclick="generatePdfReport()">📑 التقرير الشامل</button>
-            <button class="btn btn-warning" onclick="openBrandingModal()">⚙️ تخصيص الهوية</button>
-            <button class="btn btn-info" onclick="openCardDesignModal()">🎨 تصميم الكارت (مم)</button>
-            <button class="btn btn-success" onclick="exportData()">💾 حفظ النسخة</button>
-            <button class="btn btn-secondary" onclick="document.getElementById('import-file').click()">📤 رفع نسخة</button>
-            <input type="file" id="import-file" style="display: none;" accept=".json" onchange="importData(event)">
-            
-            <button class="btn btn-theme" id="theme-toggle" onclick="toggleTheme()">🌙 الوضع الليلي</button>
-        </div>
+        <button class="btn btn-warning" id="theme-btn" onclick="toggleTheme()">🌙 الوضع الليلي</button>
     </header>
 
-    <div id="status-notification"></div>
-
-    <div class="breadcrumb-container">
-        <div class="breadcrumb" id="breadcrumb">
-            <span onclick="showCenters()"> الرئيسية </span>
-        </div>
-        <button class="btn btn-secondary" id="back-btn" onclick="goBack()" style="display: none;">↩️ رجوع</button>
+    <div class="nav-tabs">
+        <button class="tab-btn active" onclick="switchTab(event, 'schedule-tab')">📅 الجدول والسيستم</button>
+        <button class="tab-btn" onclick="switchTab(event, 'finance-tab')">💰 شيت الحسابات والنسب</button>
+        <button class="tab-btn" onclick="switchTab(event, 'teachers-tab')">👨‍🏫 المدرسين والإحصائيات</button>
+        <button class="tab-btn" onclick="switchTab(event, 'settings-tab')">⚙️ إعدادات السنتر والقاعات</button>
     </div>
 
-    <!-- 1. السناتر -->
-    <div id="centers-view" class="view active">
-        <div class="report-summary-box">
-            <div>
-                <h3 style="font-size: 1.05rem;">📊 ملخص تقرير النظام العام</h3>
-                <p style="font-size: 0.85rem; color: var(--subtext-color); margin-top: 4px;">انقر على الزر لإخراج تقرير شامل بكل الأرقام والنسب لكافة السناتر.</p>
-            </div>
-            <button class="btn btn-report" onclick="generatePdfReport()">📑 طباعة تقرير عام</button>
-        </div>
-
+    <div id="schedule-tab" class="view-section active">
         <div class="form-box">
-            <h3>إضافة سنتر جديد</h3>
-            <input type="text" id="center-name" placeholder=" اسم السنتر ">
-            <button class="btn btn-primary" style="width: 100%;" onclick="addCenter()">+ إضافة سنتر</button>
-        </div>
-        <div class="grid" id="centers-list"></div>
-    </div>
-
-    <!-- 2. المجموعات -->
-    <div id="groups-view" class="view">
-        <div class="report-summary-box">
-            <div>
-                <h3 style="font-size: 1.05rem;" id="center-report-title">📊 تقرير السنتر</h3>
-                <p style="font-size: 0.85rem; color: var(--subtext-color); margin-top: 4px;">طباعة تقرير خاص بجميع مجموعات وطلاب هذا السنتر فقط.</p>
+            <h3>حجز قاعة حصة جديدة</h3>
+            <div class="grid-inputs">
+                <div>
+                    <label>اليوم:</label>
+                    <select id="sched-day">
+                        <option>السبت</option><option>الأحد</option><option>الإثنين</option>
+                        <option>الثلاثاء</option><option>الأربعاء</option><option>الخميس</option><option>الجمعة</option>
+                    </select>
+                </div>
+                <div>
+                    <label>القاعة:</label>
+                    <select id="sched-hall"></select>
+                </div>
+                <div>
+                    <label>المدرس:</label>
+                    <select id="sched-teacher"></select>
+                </div>
+                <div>
+                    <label>من (الساعة):</label>
+                    <input type="time" id="sched-from">
+                </div>
+                <div>
+                    <label>إلى (الساعة):</label>
+                    <input type="time" id="sched-to">
+                </div>
             </div>
-            <button class="btn btn-report" onclick="generatePdfReport('center')">📑 طباعة تقرير السنتر</button>
+            <button class="btn btn-primary" style="margin-top: 10px; width: 100%;" onclick="addSchedule()">+ تأكيد حجز القاعة</button>
         </div>
 
-        <div class="form-box">
-            <h3 id="current-center-title">المجموعات</h3>
-            <input type="text" id="group-name" placeholder=" اسم المجموعة ">
-            <button class="btn btn-primary" style="width: 100%;" onclick="addGroup()">+ إضافة مجموعة</button>
-        </div>
-        <div class="grid" id="groups-list"></div>
-    </div>
-
-    <!-- 3. قائمة الطلاب والغياب -->
-    <div id="students-view" class="view">
-        <div class="absent-bar">
-            <div class="absent-info" id="absent-summary-text">
-                ⚠️ الطلاب الغائبون: 0 من 0
-            </div>
-            <div class="absent-actions">
-                <button class="btn btn-qr" onclick="openGroupQrModal()">🖨️ كارنيهات الكيو آر (للكل)</button>
-                <button class="btn btn-report" onclick="generatePdfReport('group')">📑 تقرير المجموعة</button>
-                <button class="btn btn-warning" onclick="showGroupExamsPage()">📝 رصد امتحانات</button>
-                <button class="btn btn-info" onclick="exportGroupContactsVCF()">📲 حفظ جهات اتصال (VCF)</button>
-                <button class="btn btn-danger" onclick="sendAbsentMessages()">📲 رسائل غياب الواتساب</button>
-                <button class="btn btn-success" onclick="openGroupWaModal()">💬 إعدادات الجروب</button>
-            </div>
-        </div>
-
-        <div class="form-box">
-            <h3 id="current-group-title">قائمة الطلاب</h3>
-            <div class="inputs-grid">
-                <input type="text" id="student-name" placeholder="اسم الطالب">
-                <input type="tel" id="student-phone" placeholder="رقم الطالب">
-                <input type="tel" id="parent-phone" placeholder="رقم ولي الأمر">
-            </div>
-            <button class="btn btn-primary" style="width: 100%; margin-top: 5px;" onclick="addStudent()">+ إضافة طالب</button>
-        </div>
-
-        <div class="search-box">
-            <input type="text" id="search-student" placeholder="🔍 ابحث باسم الطالب أو رقم الهاتف أو الكود (001)..." oninput="renderStudents()">
-        </div>
-
-        <div class="table-container">
+        <h3>📅 جدول الحصص الأسبوعي</h3>
+        <div class="table-container" style="margin-top: 10px;">
             <table>
                 <thead>
                     <tr>
-                        <th>الكود والاسم</th>
-                        <th>تاريخ الإضافة</th>
-                        <th>رقم الطالب</th>
-                        <th>رقم ولي الأمر</th>
-                        <th>الحالة</th>
-                        <th>واتساب</th>
+                        <th>اليوم</th>
+                        <th>القاعة</th>
+                        <th>المدرس</th>
+                        <th>من</th>
+                        <th>إلى</th>
                         <th>إجراءات</th>
                     </tr>
                 </thead>
-                <tbody id="students-table-body"></tbody>
+                <tbody id="schedule-table"></tbody>
             </table>
         </div>
     </div>
 
-    <!-- 4. صفحة رصد الامتحانات السريعة لكل طلاب المجموعة -->
-    <div id="group-exams-view" class="view">
+    <div id="finance-tab" class="view-section">
         <div class="form-box">
-            <h3 id="group-exams-title">📝 رصد امتحانات طلاب المجموعة</h3>
-            <div class="inputs-grid">
+            <h3>تسليم حساب حصة (تصفية مالية)</h3>
+            <div class="grid-inputs">
                 <div>
-                    <label>نوع الامتحان:</label>
-                    <select id="bulk-exam-type">
-                        <option value="حصة 1 (أسبوع 1)">حصة 1 (أسبوع 1)</option>
-                        <option value="حصة 2 (أسبوع 2)">حصة 2 (أسبوع 2)</option>
-                        <option value="حصة 3 (أسبوع 3)">حصة 3 (أسبوع 3)</option>
-                        <option value="حصة 4 (أسبوع 4)">حصة 4 (أسبوع 4)</option>
-                        <option value="امتحان شهرى">امتحان شهرى</option>
-                    </select>
+                    <label>اختر المدرس:</label>
+                    <select id="fin-teacher"></select>
                 </div>
                 <div>
-                    <label>الدرجة النهائية (العظمى):</label>
-                    <input type="number" id="bulk-exam-max" placeholder="مثال: 20" value="20">
+                    <label>إجمالي الطلاب العاديين (شامل المجاني):</label>
+                    <input type="number" id="fin-regular-students" placeholder="مثال: 30" oninput="calculateFinance()">
                 </div>
                 <div>
-                    <label>اسم/عنوان الامتحان (اختياري):</label>
-                    <input type="text" id="bulk-exam-title" placeholder="مثال: اختبار الميكانيكا">
+                    <label>سعر الحصة العادي (ج.م):</label>
+                    <input type="number" id="fin-price" placeholder="مثال: 35" oninput="calculateFinance()">
+                </div>
+                <div>
+                    <label>نصيب السنتر للطالب (ج.م):</label>
+                    <input type="number" id="fin-center-share" placeholder="مثال: 7.5" value="7.5" oninput="calculateFinance()">
+                </div>
+                <div>
+                    <label>عدد الطلاب الشهريين:</label>
+                    <input type="number" id="fin-monthly-students" placeholder="مثال: 2" value="0" oninput="calculateFinance()">
+                </div>
+                <div>
+                    <label>سعر الحصة للشهري (ج.م):</label>
+                    <input type="number" id="fin-monthly-price" placeholder="مثال: 30" value="30" oninput="calculateFinance()">
+                </div>
+                <div>
+                    <label>عدد الطلاب المجانيين (ضمن العادي):</label>
+                    <input type="number" id="fin-free-students" placeholder="مثال: 1" value="0" oninput="calculateFinance()">
                 </div>
             </div>
-            <div style="display: flex; gap: 10px; margin-top: 10px;">
-                <button class="btn btn-success" style="flex: 2;" onclick="saveBulkExams()">💾 حفظ كافة الدرجات</button>
-                <button class="btn btn-info" style="flex: 1;" onclick="openOldExamsModal()">📜 سجل الامتحانات القديمة</button>
+
+            <div class="summary-card">
+                <div class="summary-item">
+                    <h4>إجمالي الطلاب الحاضرين</h4>
+                    <p id="calc-total-students">0 طالب</p>
+                </div>
+                <div class="summary-item">
+                    <h4>نصيب المدرس للطالب</h4>
+                    <p id="calc-teacher-per-student">0 ج.م</p>
+                </div>
+                <div class="summary-item">
+                    <h4>إجمالي المقبوض بالخزينة</h4>
+                    <p id="calc-total-income">0 ج.م</p>
+                </div>
+                <div class="summary-item">
+                    <h4>صافي حق المدرس</h4>
+                    <p id="calc-teacher-net" style="color: #16a34a;">0 ج.م</p>
+                </div>
+                <div class="summary-item">
+                    <h4>صافي السنتر الفعلي</h4>
+                    <p id="calc-center-net" style="color: #2563eb;">0 ج.م</p>
+                </div>
             </div>
+
+            <button class="btn btn-success" style="margin-top: 15px; width: 100%;" onclick="saveFinanceSession()">💾 حفظ وتأكيد الحسبة المالية</button>
         </div>
 
-        <h3>قائمة طلاب المجموعة للرصد</h3>
-        <div class="table-container">
+        <h3>📋 سجل الحسابات المصفاة</h3>
+        <div class="table-container" style="margin-top: 10px;">
             <table>
                 <thead>
                     <tr>
-                        <th>كود الطالب والاسم</th>
-                        <th>الدرجة الحاصل عليها</th>
-                        <th>الدرجة العظمى</th>
+                        <th>المدرس</th>
+                        <th>الطلاب (عادي / شهري / مجاني)</th>
+                        <th>الأسعار / نسبة السنتر</th>
+                        <th>صافي المدرس</th>
+                        <th>صافي السنتر</th>
+                        <th>إجمالي الخزينة</th>
+                        <th>إجراءات</th>
                     </tr>
                 </thead>
-                <tbody id="group-exams-table-body"></tbody>
+                <tbody id="finance-history-table"></tbody>
             </table>
         </div>
     </div>
-</div>
 
-<!-- حاوية التقرير المخصص للطباعة و PDF -->
-<div class="print-only-report" id="pdf-report-area"></div>
+    <div id="teachers-tab" class="view-section">
+        <div class="form-box">
+            <h3>إضافة مدرس جديد</h3>
+            <div style="display: flex; gap: 10px; flex-wrap: wrap;">
+                <input type="text" id="teacher-name" placeholder="اسم المدرس (مثال: أ/ أحمد مصطفى)" style="flex: 1;">
+                <input type="text" id="teacher-subject" placeholder="المادة (مثال: فيزياء)" style="flex: 1;">
+                <button class="btn btn-primary" onclick="addTeacher()">إضافة</button>
+            </div>
+        </div>
 
-<!-- Modal نافذة الماسح الضوئي (QR Scanner) مع اختيار السنتر والمجموعة -->
-<div class="modal-overlay" id="scanner-modal">
-    <div class="modal-card" style="text-align: center;">
-        <h3 style="margin-bottom: 8px;">📷 مسح كيو آر كود للحضور والغياب</h3>
-        
-        <!-- إضافة اختيار السنتر والمجموعة التي يعمل عليها الآن -->
-        <div style="background: rgba(0,0,0,0.04); padding: 10px; border-radius: 8px; margin-bottom: 10px; text-align: right;">
-            <label style="font-size: 0.85rem; font-weight: bold; display: block; margin-bottom: 4px;">🎯 حدد السنتر والمجموعة المستهدفة بالمسح:</label>
-            <div class="inputs-grid" style="margin-top: 0;">
+        <h3>📊 إحصائيات الطلاب والمدرسين</h3>
+        <div class="table-container" style="margin-top: 10px;">
+            <table>
+                <thead>
+                    <tr>
+                        <th>اسم المدرس</th>
+                        <th>المادة</th>
+                        <th>إجمالي الطلاب الحاضرين</th>
+                        <th>إجمالي دخل المدرس</th>
+                        <th>إجراءات</th>
+                    </tr>
+                </thead>
+                <tbody id="teachers-stats-table"></tbody>
+            </table>
+        </div>
+    </div>
+
+    <div id="settings-tab" class="view-section">
+        <div class="form-box">
+            <h3>⏰ ساعات العمل الرسمية للسنتر</h3>
+            <div class="grid-inputs">
                 <div>
-                    <select id="scanner-target-center" onchange="populateScannerGroupsDropdown()">
-                        <option value="">-- اختر السنتر --</option>
-                    </select>
+                    <label>فتح السنتر (من):</label>
+                    <input type="time" id="center-open-time" value="08:00">
                 </div>
                 <div>
-                    <select id="scanner-target-group">
-                        <option value="">-- اختر المجموعة --</option>
-                    </select>
+                    <label>إغلاق السنتر (إلى):</label>
+                    <input type="time" id="center-close-time" value="22:00">
                 </div>
             </div>
+            <button class="btn btn-primary" style="margin-top: 10px;" onclick="saveSettings()">حفظ ساعات العمل</button>
         </div>
 
-        <p style="font-size: 0.8rem; color: var(--subtext-color); margin-bottom: 8px;">وجه الكاميرا نحو كارت الطالب لتسجيل حضوره تلقائياً.</p>
-        <div id="reader" style="width: 100%; max-width: 380px; margin: 0 auto; background: #000; border-radius: 8px; min-height: 220px;"></div>
-        <div id="scan-result-alert" style="margin-top: 12px; font-weight: bold; font-size: 0.95rem;"></div>
-        <button class="btn btn-danger" style="margin-top: 12px; width: 100%; padding: 10px; font-size: 1rem;" onclick="closeScannerModal()">❌ إغلاق الكاميرا وإيقاف المسح</button>
-    </div>
-</div>
-
-<!-- Modal نافذة كارت الطالب الفردي -->
-<div class="modal-overlay" id="single-qr-modal">
-    <div class="modal-card" style="text-align: center;">
-        <h3 style="margin-bottom: 12px;">🖨️ كارنيه الطالب وكيو آر كود الحضور</h3>
-        <div id="single-qr-card-container"></div>
-        <div style="display: flex; gap: 10px; margin-top: 15px;">
-            <button class="btn btn-primary" style="flex: 1;" onclick="downloadSingleCardPdf()">📥 تحميل الكارت PDF</button>
-            <button class="btn btn-secondary" style="flex: 1;" onclick="closeSingleQrModal()">إغلاق</button>
-        </div>
-    </div>
-</div>
-
-<!-- Modal نافذة كارات المجموعة بالكامل -->
-<div class="modal-overlay" id="group-qr-modal">
-    <div class="modal-card" style="text-align: center;">
-        <h3 style="margin-bottom: 12px;" id="group-qr-title-modal">🖨️ كارات كل طلاب المجموعة</h3>
-        <div id="group-qr-cards-container" style="max-height: 50vh; overflow-y: auto; padding: 10px;"></div>
-        <div style="display: flex; gap: 10px; margin-top: 15px;">
-            <button class="btn btn-primary" style="flex: 1;" onclick="downloadGroupCardsPdf()">📥 تحميل كل الكارات PDF</button>
-            <button class="btn btn-secondary" style="flex: 1;" onclick="closeGroupQrModal()">إغلاق</button>
-        </div>
-    </div>
-</div>
-
-<!-- Modal نافذة تصميم الكارت والمقاسات بالمليمتر (mm) مع السحب والإفلات وتكبير/تصغير الكلام والـ QR باللمس أو الماوس -->
-<div class="modal-overlay" id="card-design-modal">
-    <div class="modal-card">
-        <h3 style="margin-bottom: 12px;">🎨 تصميم الكارت وتحريك/تكبير وتصغير الكلام والـ QR باللمس أو الماوس</h3>
-        
-        <!-- قسم المعاينة الحية والسحب والإفلات والتكبير -->
-        <div style="background: rgba(0,0,0,0.05); padding: 10px; border-radius: 8px; margin-bottom: 12px; text-align: center;">
-            <label style="font-size: 0.85rem; font-weight: bold; display: block; margin-bottom: 5px;">👀 اسحب الاسم أو الكيو آر لتغيير مكانه، أو اسحب زاوية المربع (المقبض الأزرق) لتكبيره/تصغيره:</label>
-            <div id="design-modal-live-preview"></div>
-        </div>
-
-        <div style="margin-bottom: 10px;">
-            <label>اختر قالب الكارت الجاهز:</label>
-            <select id="card-template-preset" onchange="applyTemplatePreset()">
-                <option value="dark-blue">🌙 ليلي ملكي (أزرق داكن)</option>
-                <option value="modern-gold">✨ فخم عصري (أسود وذهبي)</option>
-                <option value="clean-white">💎 أبيض ناصع (احترافي)</option>
-                <option value="vibrant-purple">🔮 بنفسجي عصري</option>
-            </select>
-        </div>
-
-        <!-- إضافة تمبلت خارجي (صورة خلفية مخصصة للكارت) -->
-        <div style="margin-bottom: 10px; background: rgba(0,0,0,0.03); padding: 8px; border-radius: 6px; border: 1px dashed var(--border-color);">
-            <label style="font-size: 0.85rem; font-weight: bold;">🖼️ رفع تمبلت خارجي (صورة خلفية للكارت):</label>
-            <input type="file" id="card-custom-template-file" accept="image/*" onchange="previewCustomCardTemplate(event)" style="margin-top: 4px;">
-            <button class="btn btn-danger" style="margin-top: 4px; font-size: 0.75rem;" onclick="removeCustomCardTemplate()">🗑️ إزالة التمبلت الخارجي والعودة للقالب</button>
-        </div>
-
-        <!-- مقاسات الكارت والـ QR بالمليمتر (mm) -->
-        <div class="inputs-grid" style="margin-top: 10px;">
-            <div>
-                <label>عرض الكارت (مم - mm):</label>
-                <input type="number" id="card-width-mm" value="85" oninput="updateDesignDimensionsFromInputs()">
+        <div class="form-box">
+            <h3>🏫 إدارة القاعات</h3>
+            <div style="display: flex; gap: 10px;">
+                <input type="text" id="hall-name" placeholder="اسم أو رقم القاعة (مثال: قاعة 1)">
+                <button class="btn btn-primary" onclick="addHall()">إضافة قاعة</button>
             </div>
-            <div>
-                <label>ارتفاع الكارت (مم - mm):</label>
-                <input type="number" id="card-height-mm" value="54" oninput="updateDesignDimensionsFromInputs()">
-            </div>
-            <div>
-                <label>مقاس QR Code (مم - mm):</label>
-                <input type="number" id="card-qr-size-mm" value="25" oninput="updateDesignDimensionsFromInputs()">
-            </div>
+            <div id="halls-list" style="margin-top: 10px; display: flex; gap: 8px; flex-wrap: wrap;"></div>
         </div>
-
-        <!-- ألوان الخطوط والعناصر ونوع الخط -->
-        <div class="inputs-grid" style="margin-top: 10px;">
-            <div>
-                <label>نوع خط الكتابة (Font):</label>
-                <select id="card-font-family" onchange="updateDesignDimensionsFromInputs()">
-                    <option value="system-ui, -apple-system, sans-serif">افتراضي (System)</option>
-                    <option value="'Cairo', sans-serif">كاييرو (Cairo)</option>
-                    <option value="'Tajawal', sans-serif">تجوال (Tajawal)</option>
-                    <option value="'Amiri', serif">أميري (Amiri - عربي فخم)</option>
-                    <option value="'Courier New', monospace">كوير (Courier)</option>
-                </select>
-            </div>
-            <div>
-                <label>لون الخط العام:</label>
-                <input type="color" id="card-text-color-input" value="#ffffff" onchange="updateDesignDimensionsFromInputs()" style="height: 40px; padding: 2px;">
-            </div>
-            <div>
-                <label>لون اسم الطالب (مميز):</label>
-                <input type="color" id="card-accent-color-input" value="#38bdf8" onchange="updateDesignDimensionsFromInputs()" style="height: 40px; padding: 2px;">
-            </div>
-        </div>
-
-        <div class="inputs-grid" style="margin-top: 10px;">
-            <div>
-                <label>لون إطار الكارت:</label>
-                <input type="color" id="card-border-color-input" value="#38bdf8" onchange="updateDesignDimensionsFromInputs()" style="height: 40px; padding: 2px;">
-            </div>
-            <div>
-                <label>حجم خط اسم الطالب:</label>
-                <input type="text" id="card-name-size" value="1rem" oninput="updateDesignDimensionsFromInputs()">
-            </div>
-            <div>
-                <label>حجم خط المجموعة:</label>
-                <input type="text" id="card-group-size" value="0.75rem" oninput="updateDesignDimensionsFromInputs()">
-            </div>
-        </div>
-
-        <div style="display: flex; gap: 8px; margin-top: 15px;">
-            <button class="btn btn-success" style="flex: 1;" onclick="saveCardDesignSettings()">💾 حفظ التصميم</button>
-            <button class="btn btn-secondary" style="flex: 1;" onclick="closeCardDesignModal()">إلغاء</button>
-        </div>
-    </div>
-</div>
-
-<!-- Modal نافذة إعدادات جروب الواتساب والتذكير الأسبوعي -->
-<div class="modal-overlay" id="group-wa-modal">
-    <div class="modal-card">
-        <h3 style="margin-bottom: 12px;">💬 ربط المجموعة بجروب الواتساب والتذكير</h3>
-        
-        <div>
-            <label>رابط جروب الواتساب الخاص بهذه المجموعة:</label>
-            <input type="text" id="wa-group-link" placeholder="مثال: https://chat.whatsapp.com/ExAmPlE123">
-        </div>
-
-        <div style="margin-top: 10px;">
-            <label>يوم التذكير الأسبوعي قبل الحصة:</label>
-            <select id="wa-schedule-day">
-                <option value="">بدون تذكير تلقائي</option>
-                <option value="6">السبت</option>
-                <option value="0">الأحد</option>
-                <option value="1">الاثنين</option>
-                <option value="2">الثلاثاء</option>
-                <option value="3">الأربعاء</option>
-                <option value="4">الخميس</option>
-                <option value="5">الجمعة</option>
-            </select>
-        </div>
-
-        <div style="margin-top: 10px;">
-            <label>وقت إرسال التذكير:</label>
-            <input type="time" id="wa-schedule-time" value="20:00">
-        </div>
-
-        <div style="margin-top: 10px;">
-            <label>نص الرسالة المطلوبة للتذكير:</label>
-            <textarea id="wa-group-message" rows="4" placeholder="اكتب الرسالة التي تريد إرسالها هنا..."></textarea>
-        </div>
-
-        <div style="display: flex; gap: 8px; margin-top: 15px; flex-wrap: wrap;">
-            <button class="btn btn-success" style="flex: 1;" onclick="saveGroupWaSettings()">💾 حفظ الإعدادات</button>
-            <button class="btn btn-info" id="open-wa-link-btn" style="flex: 1;" onclick="openWaGroupDirect()">💬 دخول الجروب الآن</button>
-            <button class="btn btn-secondary" style="width: 100%; margin-top: 5px;" onclick="closeGroupWaModal()">إلغاء</button>
-        </div>
-    </div>
-</div>
-
-<!-- Modal نافذة تخصيص الهوية والشعار والاسم والخلفية -->
-<div class="modal-overlay" id="branding-modal">
-    <div class="modal-card">
-        <h3 style="margin-bottom: 12px;">⚙️ إعدادات وتخصيص هوية النظام</h3>
-        
-        <div>
-            <label>اسم النظام / المدرس / السنتر:</label>
-            <input type="text" id="custom-app-title" placeholder="مثال: منصة الأستاذ محمد علي">
-        </div>
-
-        <div style="margin-top: 10px;">
-            <label>شعار السنتر / المدرس (اللوجو):</label>
-            <input type="file" id="custom-logo-file" accept="image/*" onchange="previewUploadedLogo(event)">
-            <button class="btn btn-danger" style="margin-top: 5px; font-size: 0.75rem;" onclick="removeLogo()">🗑️ إزالة اللوجو الحالي</button>
-        </div>
-
-        <div style="margin-top: 15px;">
-            <label>صورة الخلفية (Background Image):</label>
-            <input type="file" id="custom-bg-file" accept="image/*" onchange="previewUploadedBg(event)">
-            <button class="btn btn-danger" style="margin-top: 5px; font-size: 0.75rem;" onclick="removeCustomBg()">🗑️ إزالة صورة الخلفية وتكليف الافتراضي</button>
-        </div>
-
-        <div style="display: flex; gap: 8px; margin-top: 20px;">
-            <button class="btn btn-success" style="flex: 1;" onclick="saveBrandingSettings()">💾 حفظ التغييرات</button>
-            <button class="btn btn-secondary" style="flex: 1;" onclick="closeBrandingModal()">إلغاء</button>
-        </div>
-    </div>
-</div>
-
-<!-- Modal نافذة تعديل الطالب -->
-<div class="modal-overlay" id="edit-student-modal">
-    <div class="modal-card">
-        <h3 style="margin-bottom: 12px;" id="modal-title">✏️ تعديل بيانات الطالب</h3>
-        <input type="hidden" id="edit-student-index">
-        <div>
-            <label>اسم الطالب:</label>
-            <input type="text" id="edit-student-name">
-        </div>
-        <div>
-            <label>رقم هاتف الطالب:</label>
-            <input type="tel" id="edit-student-phone">
-        </div>
-        <div>
-            <label>رقم هاتف ولي الأمر:</label>
-            <input type="tel" id="edit-parent-phone">
-        </div>
-        <div style="display: flex; gap: 8px; margin-top: 10px;">
-            <button class="btn btn-success" style="flex: 1;" onclick="saveStudentEdit()">💾 حفظ التعديلات</button>
-            <button class="btn btn-secondary" style="flex: 1;" onclick="closeEditModal()">إلغاء</button>
-        </div>
-    </div>
-</div>
-
-<!-- Modal نافذة نقل الطالب لمجموعة أو سنتر آخر -->
-<div class="modal-overlay" id="move-student-modal">
-    <div class="modal-card">
-        <h3 style="margin-bottom: 12px;">📂 نقل الطالب إلى مجموعة أو سنتر آخر</h3>
-        <input type="hidden" id="move-student-index">
-        <div>
-            <label>اختر السنتر المستهدف:</label>
-            <select id="move-target-center" onchange="populateMoveGroupsDropdown()"></select>
-        </div>
-        <div style="margin-top: 10px;">
-            <label>اختر المجموعة المستهدفة:</label>
-            <select id="move-target-group"></select>
-        </div>
-        <div style="display: flex; gap: 8px; margin-top: 15px;">
-            <button class="btn btn-success" style="flex: 1;" onclick="executeStudentMove()">🚚 تنفيذ النقل</button>
-            <button class="btn btn-secondary" style="flex: 1;" onclick="closeMoveModal()">إلغاء</button>
-        </div>
-    </div>
-</div>
-
-<!-- Modal نافذة درجات الطالب الفردية -->
-<div class="modal-overlay" id="single-student-exams-modal">
-    <div class="modal-card">
-        <h3 style="margin-bottom: 8px;" id="single-student-modal-title">📊 سجل درجات الطالب</h3>
-        <div id="single-student-exams-content"></div>
-        <button class="btn btn-secondary" style="width: 100%; margin-top: 15px;" onclick="closeSingleStudentExamsModal()">إغلاق</button>
-    </div>
-</div>
-
-<!-- Modal نافذة السجل التاريخي للامتحانات -->
-<div class="modal-overlay" id="old-exams-modal">
-    <div class="modal-card">
-        <h3 style="margin-bottom: 12px;">📜 سجل الامتحانات السابقة للمجموعة</h3>
-        <div id="old-exams-content"></div>
-        <button class="btn btn-secondary" style="width: 100%; margin-top: 15px;" onclick="closeOldExamsModal()">إغلاق</button>
     </div>
 </div>
 
 <script>
-    let appData = JSON.parse(localStorage.getItem('centerAppData')) || { centers: [] };
-    let brandingData = JSON.parse(localStorage.getItem('brandingSettings')) || {
-        title: 'نظام الحارث EL_HARETH',
-        logo: '',
-        bgImage: ''
+    let centerData = JSON.parse(localStorage.getItem('centerSystemData')) || {
+        settings: { openTime: '08:00', closeTime: '22:00' },
+        halls: ['قاعة 1', 'قاعة 2'],
+        teachers: [{ name: 'أ/ محمد علي', subject: 'رياضيات' }],
+        schedules: [],
+        finances: []
     };
 
-    // إعدادات تصميم الكارت بالمليمتر (mm) والإحداثيات بالـ mm
-    let cardDesignData = JSON.parse(localStorage.getItem('cardDesignSettings')) || {
-        preset: 'dark-blue',
-        fontFamily: 'system-ui, -apple-system, sans-serif',
-        widthMm: 85,
-        heightMm: 54,
-        qrSizeMm: 22,
-        nameTopMm: 6,
-        nameLeftMm: 6,
-        qrTopMm: 6,
-        qrLeftMm: 56,
-        nameSize: '1rem',
-        groupSize: '0.75rem',
-        centerSize: '0.75rem',
-        bgGradient: 'linear-gradient(135deg, #1e293b 0%, #0f172a 100%)',
-        textColor: '#ffffff',
-        accentColor: '#38bdf8',
-        borderColor: '#38bdf8',
-        customTemplateImg: ''
-    };
-
-    let selectedCenter = null, selectedGroup = null;
-    let currentView = 'centers-view';
-    let html5QrCode = null;
-
-    // --- تطبيق إعدادات التخصيص عند التحميل ---
-    function applyBranding() {
-        const titleText = brandingData.title || 'نظام الحارث EL_HARETH';
-        document.getElementById('app-title-display').innerText = titleText;
-        document.getElementById('app-title-tag').innerText = titleText;
-
-        const logoImg = document.getElementById('app-logo');
-        if (brandingData.logo) {
-            logoImg.src = brandingData.logo;
-            logoImg.style.display = 'block';
-        } else {
-            logoImg.style.display = 'none';
-        }
-
-        if (brandingData.bgImage) {
-            document.body.style.backgroundImage = `url('${brandingData.bgImage}')`;
-        } else {
-            document.body.style.backgroundImage = '';
-        }
+    function saveData() {
+        localStorage.setItem('centerSystemData', JSON.stringify(centerData));
+        refreshDropdowns();
     }
 
-    function openBrandingModal() {
-        document.getElementById('custom-app-title').value = brandingData.title || '';
-        document.getElementById('branding-modal').classList.add('active');
-    }
-
-    function closeBrandingModal() {
-        document.getElementById('branding-modal').classList.remove('active');
-    }
-
-    function previewUploadedLogo(event) {
-        const file = event.target.files[0];
-        if (file) {
-            const reader = new FileReader();
-            reader.onload = function(e) {
-                brandingData.logo = e.target.result;
-            };
-            reader.readAsDataURL(file);
-        }
-    }
-
-    function previewUploadedBg(event) {
-        const file = event.target.files[0];
-        if (file) {
-            const reader = new FileReader();
-            reader.onload = function(e) {
-                brandingData.bgImage = e.target.result;
-            };
-            reader.readAsDataURL(file);
-        }
-    }
-
-    function removeLogo() {
-        brandingData.logo = '';
-        document.getElementById('custom-logo-file').value = '';
-        alert('تمت إزالة اللوجو.');
-    }
-
-    function removeCustomBg() {
-        brandingData.bgImage = '';
-        document.getElementById('custom-bg-file').value = '';
-        alert('تمت إزالة الخلفية المخصصة.');
-    }
-
-    function saveBrandingSettings() {
-        const newTitle = document.getElementById('custom-app-title').value.trim();
-        if (newTitle) {
-            brandingData.title = newTitle;
-        }
-        localStorage.setItem('brandingSettings', JSON.stringify(brandingData));
-        applyBranding();
-        closeBrandingModal();
-        alert('تم حفظ إعدادات الهوية والتصميم بنجاح! 🎉');
-    }
-
-    // --- إدارة نافذة تصميم الكارت والمقاسات بالمليمتر (mm) والسحب والتكبير والتصغير ---
-    function openCardDesignModal() {
-        document.getElementById('card-template-preset').value = cardDesignData.preset || 'dark-blue';
-        document.getElementById('card-font-family').value = cardDesignData.fontFamily || 'system-ui, -apple-system, sans-serif';
-        document.getElementById('card-width-mm').value = cardDesignData.widthMm || 85;
-        document.getElementById('card-height-mm').value = cardDesignData.heightMm || 54;
-        document.getElementById('card-qr-size-mm').value = cardDesignData.qrSizeMm || 22;
-        document.getElementById('card-name-size').value = cardDesignData.nameSize || '1rem';
-        document.getElementById('card-group-size').value = cardDesignData.groupSize || '0.75rem';
-        document.getElementById('card-text-color-input').value = cardDesignData.textColor || '#ffffff';
-        document.getElementById('card-accent-color-input').value = cardDesignData.accentColor || '#38bdf8';
-        document.getElementById('card-border-color-input').value = cardDesignData.borderColor || '#38bdf8';
+    function switchTab(event, tabId) {
+        document.querySelectorAll('.view-section').forEach(el => el.classList.remove('active'));
+        document.querySelectorAll('.tab-btn').forEach(el => el.classList.remove('active'));
         
-        updateCardDesignLivePreview();
-        document.getElementById('card-design-modal').classList.add('active');
-    }
-
-    function closeCardDesignModal() {
-        document.getElementById('card-design-modal').classList.remove('active');
-    }
-
-    function applyTemplatePreset() {
-        const preset = document.getElementById('card-template-preset').value;
-        if (preset === 'dark-blue') {
-            cardDesignData.bgGradient = 'linear-gradient(135deg, #1e293b 0%, #0f172a 100%)';
-            cardDesignData.textColor = '#ffffff';
-            cardDesignData.accentColor = '#38bdf8';
-            cardDesignData.borderColor = '#38bdf8';
-        } else if (preset === 'modern-gold') {
-            cardDesignData.bgGradient = 'linear-gradient(135deg, #18181b 0%, #27272a 100%)';
-            cardDesignData.textColor = '#fafafa';
-            cardDesignData.accentColor = '#fbbf24';
-            cardDesignData.borderColor = '#fbbf24';
-        } else if (preset === 'clean-white') {
-            cardDesignData.bgGradient = 'linear-gradient(135deg, #ffffff 0%, #f1f5f9 100%)';
-            cardDesignData.textColor = '#0f172a';
-            cardDesignData.accentColor = '#2563eb';
-            cardDesignData.borderColor = '#cbd5e1';
-        } else if (preset === 'vibrant-purple') {
-            cardDesignData.bgGradient = 'linear-gradient(135deg, #3b0764 0%, #581c87 100%)';
-            cardDesignData.textColor = '#ffffff';
-            cardDesignData.accentColor = '#c084fc';
-            cardDesignData.borderColor = '#a855f7';
-        }
-        cardDesignData.preset = preset;
-        
-        document.getElementById('card-text-color-input').value = cardDesignData.textColor;
-        document.getElementById('card-accent-color-input').value = cardDesignData.accentColor;
-        document.getElementById('card-border-color-input').value = cardDesignData.borderColor;
-
-        updateCardDesignLivePreview();
-    }
-
-    function previewCustomCardTemplate(event) {
-        const file = event.target.files[0];
-        if (file) {
-            const reader = new FileReader();
-            reader.onload = function(e) {
-                cardDesignData.customTemplateImg = e.target.result;
-                updateCardDesignLivePreview();
-            };
-            reader.readAsDataURL(file);
-        }
-    }
-
-    function removeCustomCardTemplate() {
-        cardDesignData.customTemplateImg = '';
-        document.getElementById('card-custom-template-file').value = '';
-        updateCardDesignLivePreview();
-        alert('تمت إزالة التمبلت الخارجي العائد للخلفية الافتراضية.');
-    }
-
-    function updateDesignDimensionsFromInputs() {
-        cardDesignData.widthMm = parseFloat(document.getElementById('card-width-mm').value) || 85;
-        cardDesignData.heightMm = parseFloat(document.getElementById('card-height-mm').value) || 54;
-        cardDesignData.qrSizeMm = parseFloat(document.getElementById('card-qr-size-mm').value) || 22;
-        cardDesignData.fontFamily = document.getElementById('card-font-family').value;
-        cardDesignData.nameSize = document.getElementById('card-name-size').value.trim() || '1rem';
-        cardDesignData.groupSize = document.getElementById('card-group-size').value.trim() || '0.75rem';
-        cardDesignData.textColor = document.getElementById('card-text-color-input').value;
-        cardDesignData.accentColor = document.getElementById('card-accent-color-input').value;
-        cardDesignData.borderColor = document.getElementById('card-border-color-input').value;
-
-        updateCardDesignLivePreview();
-    }
-
-    function updateCardDesignLivePreview() {
-        const previewContainer = document.getElementById('design-modal-live-preview');
-        const sampleQr = getExternalQrImageUrl('SAMPLE_QR_DATA', 150);
-        
-        let bgStyle = `background: ${cardDesignData.bgGradient};`;
-        if (cardDesignData.customTemplateImg) {
-            bgStyle = `background-image: url('${cardDesignData.customTemplateImg}'); background-size: cover; background-position: center;`;
-        }
-
-        const scale = 3.5;
-        const widthPx = cardDesignData.widthMm * scale;
-        const heightPx = cardDesignData.heightMm * scale;
-        const qrSizePx = cardDesignData.qrSizeMm * scale;
-
-        previewContainer.innerHTML = `
-            <div id="draggable-card-preview" style="${bgStyle} width: ${widthPx}px; height: ${heightPx}px; border: 2px solid ${cardDesignData.borderColor}; border-radius: 10px; position: relative; margin: 0 auto; overflow: hidden; font-family: ${cardDesignData.fontFamily}; color: ${cardDesignData.textColor}; box-shadow: 0 4px 15px rgba(0,0,0,0.3); user-select: none;">
-                
-                <!-- صندوق اسم الطالب والبيانات (قابل للسحب والتكبير/التصغير) -->
-                <div id="preview-name-block" style="position: absolute; top: ${cardDesignData.nameTopMm * scale}px; left: ${cardDesignData.nameLeftMm * scale}px; cursor: grab; padding: 6px; border: 1px dashed rgba(255,255,255,0.6); border-radius: 4px; background: rgba(0,0,0,0.3); text-align: right;">
-                    <h4 style="font-size: ${cardDesignData.nameSize}; color: ${cardDesignData.accentColor}; margin-bottom: 2px; pointer-events: none; white-space: nowrap;">أحمد محمد (معاينة)</h4>
-                    <p style="font-size: 0.7rem; margin-bottom: 1px; pointer-events: none;"><b>الكود:</b> 001</p>
-                    <p style="font-size: ${cardDesignData.groupSize}; margin-bottom: 1px; pointer-events: none; white-space: nowrap;"><b>المجموعة:</b> الرياضيات</p>
-                    <p style="font-size: ${cardDesignData.groupSize}; pointer-events: none; white-space: nowrap;"><b>السنتر:</b> سنتر النور</p>
-                    <div class="resize-handle" id="resize-name-handle" title="اسحب للتكبير أو التصغير" style="position: absolute; bottom: 0; left: 0; width: 14px; height: 14px; background: #38bdf8; cursor: nwse-resize; border-radius: 2px; z-index: 10;"></div>
-                </div>
-
-                <!-- صندوق الكيو آر كود (قابل للسحب والتكبير/التصغير) -->
-                <div id="preview-qr-block" style="position: absolute; top: ${cardDesignData.qrTopMm * scale}px; left: ${cardDesignData.qrLeftMm * scale}px; width: ${qrSizePx}px; height: ${qrSizePx}px; cursor: grab; padding: 2px; border: 1px dashed rgba(255,255,255,0.6); border-radius: 4px; background: #ffffff;">
-                    <img src="${sampleQr}" crossorigin="anonymous" style="width: 100%; height: 100%; object-fit: contain; pointer-events: none;" alt="QR">
-                    <div class="resize-handle" id="resize-qr-handle" title="اسحب للتكبير أو التصغير" style="position: absolute; bottom: 0; left: 0; width: 14px; height: 14px; background: #7c3aed; cursor: nwse-resize; border-radius: 2px; z-index: 10;"></div>
-                </div>
-            </div>
-            <p style="font-size: 0.75rem; color: var(--subtext-color); margin-top: 6px;">💡 اسحب المربع من المنتصف للتحريك، أو اسحب المربع الملون الصغير في الزاوية لتكبير وتصغير الكلام أو الـ QR باللمس أو الماوس بحرية.</p>
-        `;
-
-        setupDragElement('preview-name-block', widthPx, heightPx, scale, (newTop, newLeft) => {
-            cardDesignData.nameTopMm = newTop;
-            cardDesignData.nameLeftMm = newLeft;
-        });
-
-        setupDragElement('preview-qr-block', widthPx, heightPx, scale, (newTop, newLeft) => {
-            cardDesignData.qrTopMm = newTop;
-            cardDesignData.qrLeftMm = newLeft;
-        });
-
-        setupResizeElement('preview-name-block', 'resize-name-handle', (newW) => {
-            const ratio = newW / 140;
-            let calculatedRem = Math.max(0.6, Math.min(2.5, ratio)).toFixed(2) + 'rem';
-            cardDesignData.nameSize = calculatedRem;
-            document.getElementById('card-name-size').value = calculatedRem;
-            updateCardDesignLivePreview();
-        });
-
-        setupResizeElement('preview-qr-block', 'resize-qr-handle', (newW) => {
-            const newSizeMm = Math.max(12, Math.min(45, Math.round(newW / scale)));
-            cardDesignData.qrSizeMm = newSizeMm;
-            document.getElementById('card-qr-size-mm').value = newSizeMm;
-            updateCardDesignLivePreview();
-        });
-    }
-
-    function setupDragElement(elementId, maxWPx, maxHPx, scale, onUpdate) {
-        const el = document.getElementById(elementId);
-        if (!el) return;
-        let isDragging = false;
-        let startX, startY;
-
-        function start(e) {
-            if (e.target.classList.contains('resize-handle')) return;
-            isDragging = true;
-            const clientX = e.touches ? e.touches[0].clientX : e.clientX;
-            const clientY = e.touches ? e.touches[0].clientY : e.clientY;
-            startX = clientX - el.offsetLeft;
-            startY = clientY - el.offsetTop;
-            el.style.cursor = 'grabbing';
-            e.stopPropagation();
-        }
-
-        function move(e) {
-            if (!isDragging) return;
-            const clientX = e.touches ? e.touches[0].clientX : e.clientX;
-            const clientY = e.touches ? e.touches[0].clientY : e.clientY;
-            
-            let x = clientX - startX;
-            let y = clientY - startY;
-
-            x = Math.max(0, Math.min(x, maxWPx - el.offsetWidth));
-            y = Math.max(0, Math.min(y, maxHPx - el.offsetHeight));
-
-            el.style.left = x + 'px';
-            el.style.top = y + 'px';
-
-            const topMm = Math.round(y / scale);
-            const leftMm = Math.round(x / scale);
-            onUpdate(topMm, leftMm);
-
-            if (e.cancelable) e.preventDefault();
-        }
-
-        function end() {
-            if (isDragging) {
-                isDragging = false;
-                el.style.cursor = 'grab';
-            }
-        }
-
-        el.addEventListener('mousedown', start);
-        window.addEventListener('mousemove', move);
-        window.addEventListener('mouseup', end);
-        el.addEventListener('touchstart', start, {passive: false});
-        window.addEventListener('touchmove', move, {passive: false});
-        window.addEventListener('touchend', end);
-    }
-
-    function setupResizeElement(elementId, handleId, onResize) {
-        const handle = document.getElementById(handleId);
-        if (!handle) return;
-        const el = document.getElementById(elementId);
-        let isResizing = false;
-        let startX, startW;
-
-        function start(e) {
-            isResizing = true;
-            const clientX = e.touches ? e.touches[0].clientX : e.clientX;
-            startX = clientX;
-            startW = el.offsetWidth;
-            e.stopPropagation();
-            e.preventDefault();
-        }
-
-        function move(e) {
-            if (!isResizing) return;
-            const clientX = e.touches ? e.touches[0].clientX : e.clientX;
-            const dx = clientX - startX;
-            const newW = Math.max(40, startW + dx);
-            onResize(newW);
-            if (e.cancelable) e.preventDefault();
-        }
-
-        function end() { isResizing = false; }
-
-        handle.addEventListener('mousedown', start);
-        window.addEventListener('mousemove', move);
-        window.addEventListener('mouseup', end);
-        handle.addEventListener('touchstart', start, {passive: false});
-        window.addEventListener('touchmove', move, {passive: false});
-        window.addEventListener('touchend', end);
-    }
-
-    function saveCardDesignSettings() {
-        localStorage.setItem('cardDesignSettings', JSON.stringify(cardDesignData));
-        closeCardDesignModal();
-        alert('تم حفظ مقاسات وإحداثيات الكارت بنجاح! 🎉');
-    }
-
-    function renderStudentCardHtml(student, group, center, codeStr, qrDataUrl) {
-        let bgStyle = `background: ${cardDesignData.bgGradient};`;
-        if (cardDesignData.customTemplateImg) {
-            bgStyle = `background-image: url('${cardDesignData.customTemplateImg}'); background-size: cover; background-position: center;`;
-        }
-        const width = cardDesignData.widthMm + 'mm';
-        const height = cardDesignData.heightMm + 'mm';
-        const qrSize = cardDesignData.qrSizeMm + 'mm';
-        const nameTop = cardDesignData.nameTopMm + 'mm';
-        const nameLeft = cardDesignData.nameLeftMm + 'mm';
-        const qrTop = cardDesignData.qrTopMm + 'mm';
-        const qrLeft = cardDesignData.qrLeftMm + 'mm';
-
-        return `
-            <div class="id-card-template" style="${bgStyle} width: ${width}; height: ${height}; color: ${cardDesignData.textColor}; border: 2px solid ${cardDesignData.borderColor}; font-family: ${cardDesignData.fontFamily}; position: relative; box-sizing: border-box;">
-                <div style="position: absolute; top: ${nameTop}; left: ${nameLeft}; text-align: right; max-width: 60%;">
-                    <h4 style="font-size: ${cardDesignData.nameSize}; color: ${cardDesignData.accentColor}; margin-bottom: 2px; white-space: nowrap; overflow: hidden; text-overflow: ellipsis;">${student.name}</h4>
-                    <p style="font-size: 0.7rem; margin-bottom: 1px;"><b>الكود:</b> ${codeStr}</p>
-                    <p style="font-size: ${cardDesignData.groupSize}; margin-bottom: 1px; white-space: nowrap; overflow: hidden; text-overflow: ellipsis;"><b>المجموعة:</b> ${group.name}</p>
-                    <p style="font-size: ${cardDesignData.centerSize}; white-space: nowrap; overflow: hidden; text-overflow: ellipsis;"><b>السنتر:</b> ${center.name}</p>
-                </div>
-                <div class="id-card-qr" style="position: absolute; top: ${qrTop}; left: ${qrLeft}; width: ${qrSize}; height: ${qrSize}; box-sizing: border-box;">
-                    <img src="${qrDataUrl}" crossorigin="anonymous" style="width: 100% !important; height: 100% !important; object-fit: contain; display: block;" alt="QR Code">
-                </div>
-            </div>
-        `;
-    }
-
-    function updateLiveClock() {
-        const now = new Date();
-        const options = { weekday: 'long', year: 'numeric', month: 'long', day: 'numeric', hour: '2-digit', minute: '2-digit', second: '2-digit' };
-        document.getElementById('live-clock').innerText = '🕒 ' + now.toLocaleDateString('ar-EG', options);
-    }
-    setInterval(updateLiveClock, 1000);
-    updateLiveClock();
-
-    function saveData() { localStorage.setItem('centerAppData', JSON.stringify(appData)); }
-
-    function formatStudentCode(num) { return String(num).padStart(3, '0'); }
-
-    function exportData() {
-        const dataStr = "data:text/json;charset=utf-8," + encodeURIComponent(JSON.stringify(appData, null, 2));
-        const downloadAnchor = document.createElement('a');
-        downloadAnchor.setAttribute("href", dataStr);
-        downloadAnchor.setAttribute("download", `center_backup_${new Date().toISOString().slice(0, 10)}.json`);
-        document.body.appendChild(downloadAnchor);
-        downloadAnchor.click();
-        downloadAnchor.remove();
-    }
-
-    function importData(event) {
-        const file = event.target.files[0];
-        if (!file) return;
-        const reader = new FileReader();
-        reader.onload = function(e) {
-            try {
-                const importedData = JSON.parse(e.target.result);
-                if (importedData && Array.isArray(importedData.centers)) {
-                    appData = importedData;
-                    saveData();
-                    showCenters();
-                    alert('تم استيراد البيانات بنجاح! 🎉');
-                } else {
-                    alert('الملف غير صالح.');
-                }
-            } catch (err) {
-                alert('حدث خطأ أثناء قراءة الملف.');
-            }
-        };
-        reader.readAsText(file);
-    }
-
-    function exportGroupContactsVCF() {
-        const group = appData.centers[selectedCenter].groups[selectedGroup];
-        if(!group || group.students.length === 0) {
-            alert('لا يوجد طلاب في هذه المجموعة لتصديرهم!');
-            return;
-        }
-
-        let vcfContent = '';
-        group.students.forEach((student, index) => {
-            const code = formatStudentCode(index + 1);
-            if(student.studentPhone) {
-                vcfContent += `BEGIN:VCARD\nVERSION:3.0\nN:;${student.name} (${code});;;\nFN:${student.name} (${code})\nTEL;TYPE=CELL:${student.studentPhone}\nEND:VCARD\n`;
-            }
-            if(student.parentPhone) {
-                vcfContent += `BEGIN:VCARD\nVERSION:3.0\nN:;ولي أمر ${student.name} (${code});;;\nFN:ولي أمر ${student.name} (${code})\nTEL;TYPE=CELL:${student.parentPhone}\nEND:VCARD\n`;
-            }
-        });
-
-        if(!vcfContent) {
-            alert('لم يتم تسجيل أي أرقام أجهزة هؤلاء الطلاب.');
-            return;
-        }
-
-        const blob = new Blob([vcfContent], { type: 'text/vcard;charset=utf-8;' });
-        const url = URL.createObjectURL(blob);
-        const a = document.createElement('a');
-        a.href = url;
-        a.download = `جهات_اتصال_${group.name}.vcf`;
-        document.body.appendChild(a);
-        a.click();
-        document.body.removeChild(a);
-        URL.revokeObjectURL(url);
-        alert('تم إنشاء ملف الأسماء! افتح الملف المحمّل ليتم إضافتهم فوراً إلى أسماء هاتفك. 📲');
-    }
-
-    function initTheme() {
-        const savedTheme = localStorage.getItem('appTheme');
-        if (savedTheme === 'dark') {
-            document.body.classList.add('dark-mode');
-            updateThemeButton(true);
-        } else {
-            document.body.classList.remove('dark-mode');
-            updateThemeButton(false);
-        }
+        document.getElementById(tabId).classList.add('active');
+        event.currentTarget.classList.add('active');
     }
 
     function toggleTheme() {
         const isDark = document.body.classList.toggle('dark-mode');
-        localStorage.setItem('appTheme', isDark ? 'dark' : 'light');
-        updateThemeButton(isDark);
+        localStorage.setItem('centerAppTheme', isDark ? 'dark' : 'light');
+        updateThemeBtn(isDark);
     }
 
-    function updateThemeButton(isDark) {
-        const btn = document.getElementById('theme-toggle');
-        if (isDark) {
-            btn.innerHTML = '☀️ نهاري';
+    function initTheme() {
+        const savedTheme = localStorage.getItem('centerAppTheme');
+        if (savedTheme === 'dark') {
+            document.body.classList.add('dark-mode');
+            updateThemeBtn(true);
+        } else {
+            document.body.classList.remove('dark-mode');
+            updateThemeBtn(false);
+        }
+    }
+
+    function updateThemeBtn(isDark) {
+        const btn = document.getElementById('theme-btn');
+        if(isDark) {
+            btn.innerHTML = '☀️ الوضع النهاري';
             btn.style.backgroundColor = '#f59e0b';
         } else {
-            btn.innerHTML = '🌙 ليلي';
-            btn.style.backgroundColor = '#8b5cf6';
+            btn.innerHTML = '🌙 الوضع الليلي';
+            btn.style.backgroundColor = '#d97706';
         }
     }
 
-    function switchView(viewId) {
-        currentView = viewId;
-        document.querySelectorAll('.view').forEach(v => v.classList.remove('active'));
-        document.getElementById(viewId).classList.add('active');
-        const backBtn = document.getElementById('back-btn');
-        if (viewId === 'centers-view') {
-            backBtn.style.display = 'none';
-        } else {
-            backBtn.style.display = 'inline-flex';
-        }
+    function refreshDropdowns() {
+        const hallSelect = document.getElementById('sched-hall');
+        const teacherSelect = document.getElementById('sched-teacher');
+        const finTeacherSelect = document.getElementById('fin-teacher');
+
+        if(hallSelect) hallSelect.innerHTML = centerData.halls.map(h => `<option>${h}</option>`).join('');
+        if(teacherSelect) teacherSelect.innerHTML = centerData.teachers.map(t => `<option>${t.name}</option>`).join('');
+        if(finTeacherSelect) finTeacherSelect.innerHTML = centerData.teachers.map(t => `<option>${t.name}</option>`).join('');
+
+        renderHallsList();
     }
 
-    function goBack() {
-        if (currentView === 'group-exams-view') {
-            showStudents(selectedGroup);
-        } else if (currentView === 'students-view') {
-            showGroups(selectedCenter);
-        } else if (currentView === 'groups-view') {
-            showCenters();
-        }
+    // --- 1. الجدول الأسبوعي ---
+    function addSchedule() {
+        const day = document.getElementById('sched-day').value;
+        const hall = document.getElementById('sched-hall').value;
+        const teacher = document.getElementById('sched-teacher').value;
+        const from = document.getElementById('sched-from').value;
+        const to = document.getElementById('sched-to').value;
+
+        if(!from || !to) return alert('برجاء تحديد وقت البداية والنهاية!');
+
+        centerData.schedules.push({ day, hall, teacher, from, to });
+        saveData();
+        renderSchedules();
     }
 
-    // --- 1. السناتر ---
-    function renderCenters() {
-        const list = document.getElementById('centers-list');
-        list.innerHTML = '';
-        appData.centers.forEach((center, index) => {
-            let totalStudents = center.groups.reduce((acc, g) => acc + g.students.length, 0);
-            list.innerHTML += `
-                <div class="card">
-                    <div onclick="showGroups(${index})">
-                        <h3>${center.name}</h3>
-                        <p>المجموعات: ${center.groups.length}</p>
-                        <p>إجمالي الطلاب: ${totalStudents}</p>
-                    </div>
-                    <div class="card-actions">
-                        <button class="btn btn-report" onclick="event.stopPropagation(); generateSpecificCenterPdf(${index})">📑 تقرير</button>
-                        <button class="btn btn-danger" onclick="deleteCenter(event, ${index})">🗑️ حذف</button>
-                    </div>
-                </div>`;
-        });
-        document.getElementById('breadcrumb').innerHTML = '<b> الرئيسية </b>';
+    function renderSchedules() {
+        const tbody = document.getElementById('schedule-table');
+        tbody.innerHTML = centerData.schedules.map((s, index) => `
+            <tr>
+                <td>${s.day}</td>
+                <td>${s.hall}</td>
+                <td><b>${s.teacher}</b></td>
+                <td>${s.from}</td>
+                <td>${s.to}</td>
+                <td><button class="btn btn-danger" onclick="deleteSchedule(${index})">حذف</button></td>
+            </tr>
+        `).join('');
     }
 
-    function addCenter() {
-        const name = document.getElementById('center-name').value.trim();
-        if(name) { appData.centers.push({ name: name, groups: [] }); saveData(); renderCenters(); document.getElementById('center-name').value = ''; }
+    function deleteSchedule(index) {
+        centerData.schedules.splice(index, 1);
+        saveData();
+        renderSchedules();
     }
 
-    function deleteCenter(event, index) {
-        event.stopPropagation();
-        if(confirm(`مسح سنتر "${appData.centers[index].name}" بكل بياناته؟`)) {
-            appData.centers.splice(index, 1);
-            saveData();
-            renderCenters();
-        }
+    // --- 2. الحسابات الصريحة: الخصم التلقائي للمجاني من مدفوعات الخزينة فقط ---
+    function calculateFinance() {
+        const totalRegularInput = parseFloat(document.getElementById('fin-regular-students').value) || 0;
+        const monthlyStudents = parseFloat(document.getElementById('fin-monthly-students').value) || 0;
+        const freeStudents = parseFloat(document.getElementById('fin-free-students').value) || 0;
+
+        const lessonPrice = parseFloat(document.getElementById('fin-price').value) || 0;
+        const centerShare = parseFloat(document.getElementById('fin-center-share').value) || 0;
+        const monthlyPrice = parseFloat(document.getElementById('fin-monthly-price').value) || 0;
+
+        const paidRegularStudents = Math.max(0, totalRegularInput - freeStudents);
+        const totalStudents = totalRegularInput + monthlyStudents;
+        const teacherSharePerStudent = Math.max(0, lessonPrice - centerShare);
+        const teacherAmount = totalStudents * teacherSharePerStudent;
+        const totalCollectedIncome = (paidRegularStudents * lessonPrice) + (monthlyStudents * monthlyPrice);
+        const centerAmount = totalCollectedIncome - teacherAmount;
+
+        document.getElementById('calc-total-students').innerText = totalStudents + ' طالب';
+        document.getElementById('calc-teacher-per-student').innerText = teacherSharePerStudent + ' ج.م';
+        document.getElementById('calc-total-income').innerText = totalCollectedIncome.toFixed(1) + ' ج.م';
+        document.getElementById('calc-teacher-net').innerText = teacherAmount.toFixed(1) + ' ج.م';
+        document.getElementById('calc-center-net').innerText = centerAmount.toFixed(1) + ' ج.م';
+
+        return { totalStudents, totalRegularInput, paidRegularStudents, monthlyStudents, freeStudents, lessonPrice, centerShare, teacherSharePerStudent, monthlyPrice, teacherAmount, centerAmount, totalCollectedIncome };
     }
 
-    // --- 2. المجموعات ---
-    function showGroups(index) {
-        selectedCenter = index;
-        switchView('groups-view');
-        renderGroups();
+    function saveFinanceSession() {
+        const teacher = document.getElementById('fin-teacher').value;
+        const calc = calculateFinance();
+
+        if(calc.totalStudents <= 0) return alert('برجاء إدخال عدد الطلاب بشكل صحيح!');
+
+        centerData.finances.push({ teacher, ...calc, date: new Date().toLocaleDateString('ar-EG') });
+        saveData();
+        renderFinances();
+        renderTeacherStats();
+        alert('تم حفظ الحسبة بنجاح! 🎉');
     }
 
-    function renderGroups() {
-        const center = appData.centers[selectedCenter];
-        document.getElementById('current-center-title').innerText = `المجموعات في (${center.name})`;
-        document.getElementById('center-report-title').innerText = `📊 تقرير سنتر (${center.name})`;
-        document.getElementById('breadcrumb').innerHTML = `<span onclick="showCenters()">الرئيسية</span> / <b>${center.name}</b>`;
-        
-        const list = document.getElementById('groups-list');
-        list.innerHTML = '';
-        center.groups.forEach((group, gIndex) => {
-            const daysNames = ["الأحد", "الاثنين", "الثلاثاء", "الأربعاء", "الخميس", "الجمعة", "السبت"];
-            const hasSchedule = group.waDay !== undefined && group.waDay !== "";
-
-            list.innerHTML += `
-                <div class="card">
-                    <div onclick="showStudents(${gIndex})">
-                        <h3>${group.name}</h3>
-                        <p>الطلاب: ${group.students.length}</p>
-                        ${hasSchedule ? `<span class="badge-schedule">⏰ تنبيه: ${daysNames[group.waDay]} الساعة ${group.waTime}</span>` : ''}
-                    </div>
-                    <div class="card-actions">
-                        <button class="btn btn-report" onclick="event.stopPropagation(); generateSpecificGroupPdf(${selectedCenter}, ${gIndex})">📑 تقرير</button>
-                        ${group.waGroupLink ? `<a href="${group.waGroupLink}" target="_blank" class="btn btn-info" onclick="event.stopPropagation()">💬 الجروب</a>` : ''}
-                        <button class="btn btn-danger" onclick="deleteGroup(event, ${gIndex})">🗑️ حذف</button>
-                    </div>
-                </div>`;
-        });
+    function renderFinances() {
+        const tbody = document.getElementById('finance-history-table');
+        tbody.innerHTML = centerData.finances.map((f, i) => `
+            <tr>
+                <td><b>${f.teacher}</b></td>
+                <td>كلي: ${f.totalStudents} (عادي: ${f.totalRegularInput} | شهري: ${f.monthlyStudents} | مجاني: ${f.freeStudents})</td>
+                <td>حصة: ${f.lessonPrice}ج | سنتر: ${f.centerShare}ج | شهري: ${f.monthlyPrice}ج</td>
+                <td style="color: #16a34a; font-weight: bold;">${f.teacherAmount.toFixed(1)} ج.م</td>
+                <td style="color: #2563eb; font-weight: bold;">${f.centerAmount.toFixed(1)} ج.م</td>
+                <td style="font-weight: bold;">${f.totalCollectedIncome.toFixed(1)} ج.م</td>
+                <td><button class="btn btn-danger" onclick="deleteFinance(${i})">حذف</button></td>
+            </tr>
+        `).join('');
     }
 
-    function addGroup() {
-        const name = document.getElementById('group-name').value.trim();
-        if(name) { appData.centers[selectedCenter].groups.push({ name: name, students: [] }); saveData(); renderGroups(); document.getElementById('group-name').value = ''; }
+    function deleteFinance(i) {
+        centerData.finances.splice(i, 1);
+        saveData();
+        renderFinances();
+        renderTeacherStats();
     }
 
-    function deleteGroup(event, gIndex) {
-        event.stopPropagation();
-        const groupName = appData.centers[selectedCenter].groups[gIndex].name;
-        if(confirm(`مسح مجموعة "${groupName}" بجميع طلابها؟`)) {
-            appData.centers[selectedCenter].groups.splice(gIndex, 1);
-            saveData();
-            renderGroups();
-        }
-    }
-
-    // --- 3. الطلاب والغياب والتعديل ---
-    function showStudents(gIndex) {
-        selectedGroup = gIndex;
-        switchView('students-view');
-        renderStudents();
-    }
-
-    function renderStudents() {
-        const center = appData.centers[selectedCenter];
-        const group = center.groups[selectedGroup];
-        const searchQuery = (document.getElementById('search-student')?.value || '').trim().toLowerCase();
-        
-        document.getElementById('breadcrumb').innerHTML = `
-            <span onclick="showCenters()">الرئيسية</span> / 
-            <span onclick="showGroups(${selectedCenter})">${center.name}</span> / 
-            <b>${group.name}</b>
-        `;
-
-        const totalStudents = group.students.length;
-        const absentStudents = group.students.filter(s => s.status === 'غائب');
-        document.getElementById('absent-summary-text').innerText = `⚠️ الطلاب الغائبون: ${absentStudents.length} من أصل ${totalStudents}`;
-
-        const tbody = document.getElementById('students-table-body');
-        tbody.innerHTML = '';
-
-        group.students.forEach((student, sIndex) => {
-            const codeStr = formatStudentCode(sIndex + 1);
-            const studentPhone = student.studentPhone || 'غير مسجل';
-            const parentPhone = student.parentPhone || 'غير مسجل';
-            const dateAdded = student.dateAdded || 'غير مدون';
-
-            const matchesSearch = student.name.toLowerCase().includes(searchQuery) || 
-                                  studentPhone.includes(searchQuery) || 
-                                  parentPhone.includes(searchQuery) ||
-                                  codeStr.includes(searchQuery);
-
-            if (matchesSearch) {
-                let waPhone = student.parentPhone || student.studentPhone;
-                if(waPhone && !waPhone.startsWith('2')) waPhone = '2' + waPhone;
-
-                const statusText = student.status || 'حاضر';
-                const statusClass = statusText === 'غائب' ? 'btn-danger' : 'btn-success';
-
-                tbody.innerHTML += `
-                    <tr>
-                        <td><span class="student-code">${codeStr}</span><b>${student.name}</b></td>
-                        <td style="font-size:0.8rem; color:var(--subtext-color);">${dateAdded}</td>
-                        <td>${studentPhone}</td>
-                        <td>${parentPhone}</td>
-                        <td><button class="btn ${statusClass}" onclick="toggleStatus(${sIndex})">${statusText}</button></td>
-                        <td>${waPhone ? `<a href="https://wa.me/${waPhone}" target="_blank" class="btn btn-info">واتساب</a>` : 'لا يوجد'}</td>
-                        <td>
-                            <div class="action-btns">
-                                <button class="btn btn-qr" onclick="openSingleQrModal(${sIndex})">🖨️ كارت</button>
-                                <button class="btn btn-primary" onclick="openSingleStudentExamsModal(${sIndex})">📊 درجاته</button>
-                                <button class="btn btn-warning" onclick="openMoveModal(${sIndex})">📂 نقل</button>
-                                <button class="btn btn-warning" onclick="openEditModal(${sIndex})">✏️ تعديل</button>
-                                <button class="btn btn-danger" onclick="deleteStudent(${sIndex})">🗑️ مسح</button>
-                            </div>
-                        </td>
-                    </tr>`;
-            }
-        });
-    }
-
-    function addStudent() {
-        const name = document.getElementById('student-name').value.trim();
+    // --- 3. المدرسين والإحصائيات ---
+    function addTeacher() {
+        const name = document.getElementById('teacher-name').value.trim();
+        const subject = document.getElementById('teacher-subject').value.trim();
         if(name) {
-            const todayStr = new Date().toLocaleDateString('ar-EG');
-            appData.centers[selectedCenter].groups[selectedGroup].students.push({
-                name: name, 
-                parentPhone: document.getElementById('parent-phone').value.trim(), 
-                studentPhone: document.getElementById('student-phone').value.trim(), 
-                status: 'حاضر',
-                dateAdded: todayStr,
-                exams: []
-            });
-            saveData(); renderStudents();
-            document.getElementById('student-name').value = '';
-            document.getElementById('parent-phone').value = '';
-            document.getElementById('student-phone').value = '';
-        }
-    }
-
-    function toggleStatus(sIndex) {
-        const student = appData.centers[selectedCenter].groups[selectedGroup].students[sIndex];
-        student.status = (student.status === 'غائب') ? 'حاضر' : 'غائب';
-        saveData(); 
-        renderStudents();
-    }
-
-    function deleteStudent(sIndex) {
-        if(confirm('مسح هذا الطالب؟')) {
-            appData.centers[selectedCenter].groups[selectedGroup].students.splice(sIndex, 1);
-            saveData(); renderStudents();
-        }
-    }
-
-    function generateStudentQrPayload(cIdx, gIdx, sIdx) {
-        return JSON.stringify({
-            c: cIdx,
-            g: gIdx,
-            s: sIdx,
-            name: appData.centers[cIdx].groups[gIdx].students[sIdx].name
-        });
-    }
-
-    function getExternalQrImageUrl(textData, size) {
-        const encoded = encodeURIComponent(textData);
-        return `https://api.qrserver.com/v1/create-qr-code/?size=${size}x${size}&data=${encoded}`;
-    }
-
-    function openSingleQrModal(sIndex) {
-        const center = appData.centers[selectedCenter];
-        const group = center.groups[selectedGroup];
-        const student = group.students[sIndex];
-        const codeStr = formatStudentCode(sIndex + 1);
-        const qrData = generateStudentQrPayload(selectedCenter, selectedGroup, sIndex);
-        const qrImgUrl = getExternalQrImageUrl(qrData, 150);
-
-        const container = document.getElementById('single-qr-card-container');
-        container.innerHTML = `<div id="single-card-to-pdf" style="margin: 0 auto; display: inline-block;">${renderStudentCardHtml(student, group, center, codeStr, qrImgUrl)}</div>`;
-        document.getElementById('single-qr-modal').classList.add('active');
-    }
-
-    function closeSingleQrModal() {
-        document.getElementById('single-qr-modal').classList.remove('active');
-    }
-
-    async function downloadSingleCardPdf() {
-        const element = document.getElementById('single-card-to-pdf');
-        const opt = {
-            margin: 5, filename: 'student_id_card.pdf',
-            image: { type: 'jpeg', quality: 0.98 },
-            html2canvas: { scale: 2, useCORS: true },
-            jsPDF: { unit: 'mm', format: 'a4', orientation: 'portrait' }
-        };
-        html2pdf().from(element).set(opt).save();
-    }
-
-    function openGroupQrModal() {
-        const center = appData.centers[selectedCenter];
-        const group = center.groups[selectedGroup];
-        if(group.students.length === 0) { alert('لا يوجد طلاب في هذه المجموعة!'); return; }
-
-        document.getElementById('group-qr-title-modal').innerText = `🖨️ كارات كل طلاب مجموعة (${group.name})`;
-        const container = document.getElementById('group-qr-cards-container');
-        container.innerHTML = `<div id="group-cards-to-pdf" style="display: flex; flex-direction: column; gap: 15px; align-items: center;"></div>`;
-        
-        const innerContainer = document.getElementById('group-cards-to-pdf');
-        group.students.forEach((student, sIndex) => {
-            const codeStr = formatStudentCode(sIndex + 1);
-            const qrData = generateStudentQrPayload(selectedCenter, selectedGroup, sIndex);
-            const qrImgUrl = getExternalQrImageUrl(qrData, 150);
-            innerContainer.innerHTML += `<div>${renderStudentCardHtml(student, group, center, codeStr, qrImgUrl)}</div>`;
-        });
-        document.getElementById('group-qr-modal').classList.add('active');
-    }
-
-    function closeGroupQrModal() {
-        document.getElementById('group-qr-modal').classList.remove('active');
-    }
-
-    async function downloadGroupCardsPdf() {
-        const element = document.getElementById('group-cards-to-pdf');
-        const opt = {
-            margin: 10, filename: 'group_all_cards.pdf',
-            image: { type: 'jpeg', quality: 0.98 },
-            html2canvas: { scale: 2, useCORS: true },
-            jsPDF: { unit: 'mm', format: 'a4', orientation: 'portrait' }
-        };
-        html2pdf().from(element).set(opt).save();
-    }
-
-    // --- نافذة مسح الكيو آر كود مع تحديد السنتر والمجموعة والاستثناء الفوري ---
-    function openScannerModal() {
-        const centerSelect = document.getElementById('scanner-target-center');
-        centerSelect.innerHTML = '<option value="">-- اختر السنتر --</option>';
-        appData.centers.forEach((center, cIdx) => {
-            centerSelect.innerHTML += `<option value="${cIdx}">${center.name}</option>`;
-        });
-
-        if (selectedCenter !== null) {
-            centerSelect.value = selectedCenter;
-        }
-        populateScannerGroupsDropdown();
-        if (selectedGroup !== null) {
-            document.getElementById('scanner-target-group').value = selectedGroup;
-        }
-
-        document.getElementById('scanner-modal').classList.add('active');
-        document.getElementById('scan-result-alert').innerText = '';
-
-        setTimeout(() => {
-            if (!html5QrCode) {
-                html5QrCode = new Html5Qrcode("reader");
-            }
-            const config = { fps: 10, qrbox: { width: 200, height: 200 } };
-            html5QrCode.start({ facingMode: "environment" }, config, onScanSuccess, onScanFailure)
-            .catch(err => {
-                console.error("تعذر فتح الكاميرا", err);
-                document.getElementById('scan-result-alert').style.color = 'red';
-                document.getElementById('scan-result-alert').innerText = '❌ تعذر تشغيل الكاميرا، تأكد من إعطاء الصلاحيات.';
-            });
-        }, 300);
-    }
-
-    function populateScannerGroupsDropdown() {
-        const cIdx = document.getElementById('scanner-target-center').value;
-        const groupSelect = document.getElementById('scanner-target-group');
-        groupSelect.innerHTML = '<option value="">-- اختر المجموعة --</option>';
-
-        if (cIdx !== "" && appData.centers[cIdx] && appData.centers[cIdx].groups) {
-            appData.centers[cIdx].groups.forEach((group, gIdx) => {
-                groupSelect.innerHTML += `<option value="${gIdx}">${group.name}</option>`;
-            });
-        }
-    }
-
-    async function closeScannerModal() {
-        document.getElementById('scanner-modal').classList.remove('active');
-        if (html5QrCode) {
-            try {
-                if (html5QrCode.isScanning) {
-                    await html5QrCode.stop();
-                }
-            } catch (err) {
-                console.log("إيقاف الكاميرا:", err);
-            }
-        }
-    }
-
-    function onScanSuccess(decodedText, decodedResult) {
-        try {
-            const data = JSON.parse(decodedText);
-            if (data.c !== undefined && data.g !== undefined && data.s !== undefined) {
-                const student = appData.centers[data.c].groups[data.g].students[data.s];
-                if (student) {
-                    const alertEl = document.getElementById('scan-result-alert');
-                    const targetC = document.getElementById('scanner-target-center').value;
-                    const targetG = document.getElementById('scanner-target-group').value;
-
-                    if (targetC !== "" && targetG !== "") {
-                        const curC = parseInt(targetC);
-                        const curG = parseInt(targetG);
-
-                        if (data.c === curC && data.g === curG) {
-                            student.status = 'حاضر';
-                            saveData();
-                            alertEl.style.color = '#16a34a';
-                            alertEl.innerText = `✅ تم تسجل حضور الطالب: (${student.name}) بنجاح! 🎉`;
-                            if (currentView === 'students-view' && selectedCenter === curC && selectedGroup === curG) {
-                                renderStudents();
-                            }
-                        } else {
-                            const targetCenterName = appData.centers[data.c].name;
-                            const targetGroupName = appData.centers[data.c].groups[data.g].name;
-
-                            alertEl.style.color = '#d97706';
-                            alertEl.innerHTML = `
-                                ⚠️ تنبيه: الطالب (<b>${student.name}</b>) ينتمي لـ سنتر (${targetCenterName}) - مجموعة (${targetGroupName}) وليس للمجموعة المحددة حالياً!<br>
-                                <button class="btn btn-success" style="margin-top: 8px; width: 100%; padding: 8px; font-size: 0.85rem;" onclick="acceptStudentAsException(${data.c}, ${data.g}, ${data.s})">
-                                    ✅ اعتباره استثناء وتسجيل حضوره فى مجموعته الأصلية
-                                </button>
-                            `;
-                        }
-                    } else {
-                        student.status = 'حاضر';
-                        saveData();
-                        alertEl.style.color = '#16a34a';
-                        alertEl.innerText = `✅ تم تسجيل حضور الطالب: (${student.name}) بنجاح! 🎉`;
-                    }
-                    if (navigator.vibrate) navigator.vibrate(200);
-                }
-            }
-        } catch (e) {
-            console.error("كيو آر كود غير صالح للنظام", e);
-        }
-    }
-
-    function acceptStudentAsException(cIdx, gIdx, sIdx) {
-        const student = appData.centers[cIdx].groups[gIdx].students[sIdx];
-        student.status = 'حاضر';
-        saveData();
-        const alertEl = document.getElementById('scan-result-alert');
-        alertEl.style.color = '#16a34a';
-        alertEl.innerHTML = `✅ تم قبول الطالب (${student.name}) كاستثناء، وتعديل حالته إلى <b>حاضر</b> في مجموعته الأصلية (${appData.centers[cIdx].groups[gIdx].name}) بنجاح! 🎉`;
-        if (navigator.vibrate) navigator.vibrate(200);
-    }
-
-    function onScanFailure(error) {}
-
-    // --- إصلاح مشكلة الصفحة البيضاء للتقارير ---
-    function generatePdfReport(scope = 'all') {
-        if (scope === 'center' && selectedCenter !== null) {
-            generateSpecificCenterPdf(selectedCenter);
-        } else if (scope === 'group' && selectedCenter !== null && selectedGroup !== null) {
-            generateSpecificGroupPdf(selectedCenter, selectedGroup);
-        } else {
-            generateAllCentersPdf();
-        }
-    }
-
-    function buildGroupHtml(centerName, group) {
-        const groupTotal = group.students.length;
-        const groupAbsent = group.students.filter(s => s.status === 'غائب').length;
-        const absenceRate = groupTotal > 0 ? ((groupAbsent / groupTotal) * 100).toFixed(1) : 0;
-
-        return `
-            <div style="margin-bottom: 20px; page-break-inside: avoid;">
-                <h3 style="background:#e2e8f0; padding:6px 10px; border-radius:4px; margin-bottom:8px; font-size:1rem;">
-                    📌 سنتر: ${centerName} - مجموعة: (${group.name})
-                </h3>
-                <p style="margin-bottom:6px; font-size:0.9rem;">
-                    • <b>عدد الطلاب:</b> ${groupTotal} طالب | 
-                    • <b>عدد الغائبين:</b> ${groupAbsent} | 
-                    • <b>نسبة الغياب:</b> <b style="color:${absenceRate > 20 ? 'red' : 'green'};">${absenceRate}%</b>
-                </p>
-                <table style="width:100%; border-collapse:collapse; margin-bottom:10px;">
-                    <thead>
-                        <tr style="background:#f1f5f9;">
-                            <th style="border:1px solid #cbd5e1; padding:6px;">#</th>
-                            <th style="border:1px solid #cbd5e1; padding:6px;">اسم الطالب</th>
-                            <th style="border:1px solid #cbd5e1; padding:6px;">تاريخ الإضافة</th>
-                            <th style="border:1px solid #cbd5e1; padding:6px;">رقم الطالب</th>
-                            <th style="border:1px solid #cbd5e1; padding:6px;">رقم ولي الأمر</th>
-                            <th style="border:1px solid #cbd5e1; padding:6px;">حالة الحضور</th>
-                        </tr>
-                    </thead>
-                    <tbody>
-                        ${group.students.map((st, i) => `
-                            <tr>
-                                <td style="border:1px solid #cbd5e1; padding:6px;">${formatStudentCode(i + 1)}</td>
-                                <td style="border:1px solid #cbd5e1; padding:6px;"><b>${st.name}</b></td>
-                                <td style="border:1px solid #cbd5e1; padding:6px;">${st.dateAdded || 'غير مدون'}</td>
-                                <td style="border:1px solid #cbd5e1; padding:6px;">${st.studentPhone || '-'}</td>
-                                <td style="border:1px solid #cbd5e1; padding:6px;">${st.parentPhone || '-'}</td>
-                                <td style="border:1px solid #cbd5e1; padding:6px;">${st.status || 'حاضر'}</td>
-                            </tr>
-                        `).join('')}
-                        ${group.students.length === 0 ? '<tr><td colspan="6" style="border:1px solid #cbd5e1; text-align:center; padding:6px;">لا يوجد طلاب بالمجموعة</td></tr>' : ''}
-                    </tbody>
-                </table>
-            </div>
-        `;
-    }
-
-    function generateAllCentersPdf() {
-        let totalStudentsCount = 0;
-        let totalAbsentCount = 0;
-        let groupsReportHtml = '';
-
-        appData.centers.forEach(center => {
-            center.groups.forEach(group => {
-                totalStudentsCount += group.students.length;
-                totalAbsentCount += group.students.filter(s => s.status === 'غائب').length;
-                groupsReportHtml += buildGroupHtml(center.name, group);
-            });
-        });
-
-        const overallAbsenceRate = totalStudentsCount > 0 ? ((totalAbsentCount / totalStudentsCount) * 100).toFixed(1) : 0;
-        renderAndDownloadPdf('التقرير الشامل العام لكافة السناتر والمجموعات', totalStudentsCount, totalAbsentCount, overallAbsenceRate, groupsReportHtml, 'all_centers_report.pdf');
-    }
-
-    function generateSpecificCenterPdf(cIndex) {
-        const center = appData.centers[cIndex];
-        let totalStudentsCount = 0;
-        let totalAbsentCount = 0;
-        let groupsReportHtml = '';
-
-        center.groups.forEach(group => {
-            totalStudentsCount += group.students.length;
-            totalAbsentCount += group.students.filter(s => s.status === 'غائب').length;
-            groupsReportHtml += buildGroupHtml(center.name, group);
-        });
-
-        const overallAbsenceRate = totalStudentsCount > 0 ? ((totalAbsentCount / totalStudentsCount) * 100).toFixed(1) : 0;
-        renderAndDownloadPdf(`تقرير خاص بسنتر (${center.name})`, totalStudentsCount, totalAbsentCount, overallAbsenceRate, groupsReportHtml, `center_${center.name}_report.pdf`);
-    }
-
-    function generateSpecificGroupPdf(cIndex, gIndex) {
-        const center = appData.centers[cIndex];
-        const group = center.groups[gIndex];
-        const totalStudentsCount = group.students.length;
-        const totalAbsentCount = group.students.filter(s => s.status === 'غائب').length;
-        const overallAbsenceRate = totalStudentsCount > 0 ? ((totalAbsentCount / totalStudentsCount) * 100).toFixed(1) : 0;
-        const groupsReportHtml = buildGroupHtml(center.name, group);
-
-        renderAndDownloadPdf(`تقرير خاص بمجموعة (${group.name}) - سنتر ${center.name}`, totalStudentsCount, totalAbsentCount, overallAbsenceRate, groupsReportHtml, `group_${group.name}_report.pdf`);
-    }
-
-    function renderAndDownloadPdf(reportTitle, totalStudents, totalAbsent, absenceRate, bodyHtml, filename) {
-        const appTitle = brandingData.title || 'نظام الحارث EL_HARETH';
-        const printArea = document.getElementById('pdf-report-area');
-        
-        // بناء محتوى التقرير بداخل عنصر مؤقت مرئي لتجنب الصفحة البيضاء
-        printArea.innerHTML = `
-            <div style="padding: 20px; font-family: system-ui, sans-serif; direction: rtl; background: white; color: black; width: 100%;">
-                <div style="text-align: center; border-bottom: 2px solid #000; padding-bottom: 10px; margin-bottom: 15px;">
-                    <h1 style="font-size: 1.5rem; margin-bottom: 5px;">${appTitle}</h1>
-                    <h3 style="font-size: 1.1rem; color: #333;">${reportTitle}</h3>
-                    <p style="font-size: 0.85rem; color: #555;">تاريخ التقرير: ${new Date().toLocaleString('ar-EG')}</p>
-                </div>
-                <div style="background: #f8fafc; border: 1px solid #cbd5e1; padding: 12px; border-radius: 6px; margin-bottom: 20px; font-size: 0.95rem;">
-                    <h3>📊 الإحصائيات العامة لهذا التقرير:</h3>
-                    <ul style="list-style: none; padding-right: 10px; margin-top: 5px; line-height: 1.8;">
-                        <li>• <b>إجمالي عدد الطلاب:</b> ${totalStudents} طالب</li>
-                        <li>• <b>إجمالي الطلاب الغائبين:</b> ${totalAbsent} طالب</li>
-                        <li>• <b>نسبة الغياب:</b> <b style="color:${absenceRate > 20 ? 'red' : 'green'};">${absenceRate}%</b></li>
-                    </ul>
-                </div>
-                <h2 style="font-size: 1.1rem; margin-bottom: 10px; border-bottom: 1px solid #aaa; padding-bottom: 4px;">التفاصيل:</h2>
-                ${bodyHtml || '<p style="text-align:center;">لا توجد بيانات متاحة لعرض التقرير.</p>'}
-            </div>
-        `;
-
-        // إظهار العنصر مؤقتاً لكي تتمكن مكتبة html2pdf من قراءته بدقة وصحيح بدون صفحة بيضاء
-        printArea.style.display = 'block';
-
-        const opt = {
-            margin: 10,
-            filename: filename,
-            image: { type: 'jpeg', quality: 0.98 },
-            html2canvas: { scale: 2, useCORS: true, logging: false },
-            jsPDF: { unit: 'mm', format: 'a4', orientation: 'portrait' }
-        };
-
-        html2pdf().from(printArea).set(opt).save().then(() => {
-            printArea.style.display = 'none';
-        }).catch(err => {
-            console.error(err);
-            printArea.style.display = 'none';
-            alert('حدث خطأ أثناء تصدير ملف الـ PDF.');
-        });
-    }
-
-    function openGroupWaModal() {
-        const group = appData.centers[selectedCenter].groups[selectedGroup];
-        document.getElementById('wa-group-link').value = group.waGroupLink || '';
-        document.getElementById('wa-schedule-day').value = group.waDay !== undefined ? group.waDay : '';
-        document.getElementById('wa-schedule-time').value = group.waTime || '20:00';
-        document.getElementById('wa-group-message').value = group.waMessage || 'تذكير بموعد حصتنا غداً إن شاء الله.';
-        document.getElementById('group-wa-modal').classList.add('active');
-    }
-
-    function closeGroupWaModal() {
-        document.getElementById('group-wa-modal').classList.remove('active');
-    }
-
-    function saveGroupWaSettings() {
-        const group = appData.centers[selectedCenter].groups[selectedGroup];
-        group.waGroupLink = document.getElementById('wa-group-link').value.trim();
-        group.waDay = document.getElementById('wa-schedule-day').value;
-        group.waTime = document.getElementById('wa-schedule-time').value;
-        group.waMessage = document.getElementById('wa-group-message').value.trim();
-        saveData();
-        closeGroupWaModal();
-        alert('تم حفظ إعدادات جروب الواتساب والتذكير بنجاح! 🎉');
-    }
-
-    function openWaGroupDirect() {
-        const link = document.getElementById('wa-group-link').value.trim();
-        if(link) { window.open(link, '_blank'); } else { alert('يرجى إضافة رابط جروب الواتساب أولاً.'); }
-    }
-
-    function openMoveModal(sIndex) {
-        document.getElementById('move-student-index').value = sIndex;
-        const centerSelect = document.getElementById('move-target-center');
-        centerSelect.innerHTML = '';
-        appData.centers.forEach((center, cIdx) => {
-            centerSelect.innerHTML += `<option value="${cIdx}">${center.name}</option>`;
-        });
-        document.getElementById('move-target-center').value = selectedCenter;
-        populateMoveGroupsDropdown();
-        document.getElementById('move-student-modal').classList.add('active');
-    }
-
-    function closeMoveModal() {
-        document.getElementById('move-student-modal').classList.remove('active');
-    }
-
-    function populateMoveGroupsDropdown() {
-        const cIdx = document.getElementById('move-target-center').value;
-        const groupSelect = document.getElementById('move-target-group');
-        groupSelect.innerHTML = '';
-        if (appData.centers[cIdx] && appData.centers[cIdx].groups) {
-            appData.centers[cIdx].groups.forEach((group, gIdx) => {
-                if (!(cIdx == selectedCenter && gIdx == selectedGroup)) {
-                    groupSelect.innerHTML += `<option value="${gIdx}">${group.name}</option>`;
-                }
-            });
-        }
-        if (groupSelect.innerHTML === '') {
-            groupSelect.innerHTML = '<option value="">لا توجد مجموعات أخرى متاحة في هذا السنتر</option>';
-        }
-    }
-
-    function executeStudentMove() {
-        const sIndex = parseInt(document.getElementById('move-student-index').value);
-        const targetCIdx = parseInt(document.getElementById('move-target-center').value);
-        const targetGSelect = document.getElementById('move-target-group').value;
-
-        if (targetGSelect === '') { alert('برجاء اختيار مجموعة مستهدفة صحيحة.'); return; }
-        const targetGIdx = parseInt(targetGSelect);
-
-        const [studentToMove] = appData.centers[selectedCenter].groups[selectedGroup].students.splice(sIndex, 1);
-        appData.centers[targetCIdx].groups[targetGIdx].students.push(studentToMove);
-        saveData();
-        closeMoveModal();
-        renderStudents();
-        alert('تم نقل الطالب بنجاح! 🎉');
-    }
-
-    function openSingleStudentExamsModal(sIndex) {
-        const student = appData.centers[selectedCenter].groups[selectedGroup].students[sIndex];
-        const titleEl = document.getElementById('single-student-modal-title');
-        const contentEl = document.getElementById('single-student-exams-content');
-
-        titleEl.innerText = `📊 درجات الطالب: ${student.name} (${formatStudentCode(sIndex + 1)})`;
-
-        if (!student.exams || student.exams.length === 0) {
-            contentEl.innerHTML = '<p style="text-align:center; padding: 20px; color: var(--subtext-color);">لم يتم رصد أي امتحانات أو اختبارات لهذا الطالب حتى الآن.</p>';
-        } else {
-            let tableHtml = `<div class="table-container"><table><thead><tr><th>#</th><th>الامتحان</th><th>الدرجة</th><th>النسبة</th><th>التاريخ</th></tr></thead><tbody>`;
-            student.exams.forEach((ex, idx) => {
-                const percent = ((ex.score / ex.max) * 100).toFixed(1);
-                tableHtml += `<tr><td>${idx + 1}</td><td><b>${ex.title}</b></td><td><b style="color:#2563eb;">${ex.score}</b> / ${ex.max}</td><td><b>${percent}%</b></td><td style="font-size:0.75rem;">${ex.date || 'غير مدون'}</td></tr>`;
-            });
-            tableHtml += `</tbody></table></div>`;
-            contentEl.innerHTML = tableHtml;
-        }
-        document.getElementById('single-student-exams-modal').classList.add('active');
-    }
-
-    function closeSingleStudentExamsModal() {
-        document.getElementById('single-student-exams-modal').classList.remove('active');
-    }
-
-    function openEditModal(sIndex) {
-        const student = appData.centers[selectedCenter].groups[selectedGroup].students[sIndex];
-        document.getElementById('edit-student-index').value = sIndex;
-        document.getElementById('edit-student-name').value = student.name || '';
-        document.getElementById('edit-student-phone').value = student.studentPhone || '';
-        document.getElementById('edit-parent-phone').value = student.parentPhone || '';
-        document.getElementById('edit-student-modal').classList.add('active');
-    }
-
-    function closeEditModal() {
-        document.getElementById('edit-student-modal').classList.remove('active');
-    }
-
-    function saveStudentEdit() {
-        const sIndex = parseInt(document.getElementById('edit-student-index').value);
-        const newName = document.getElementById('edit-student-name').value.trim();
-        if (!newName) { alert('برجاء كتابة اسم الطالب.'); return; }
-
-        const student = appData.centers[selectedCenter].groups[selectedGroup].students[sIndex];
-        student.name = newName;
-        student.studentPhone = document.getElementById('edit-student-phone').value.trim();
-        student.parentPhone = document.getElementById('edit-parent-phone').value.trim();
-
-        saveData();
-        renderStudents();
-        closeEditModal();
-    }
-
-    async function sendAbsentMessages() {
-        const group = appData.centers[selectedCenter].groups[selectedGroup];
-        const absentStudents = group.students.filter(s => s.status === 'غائب');
-        if (absentStudents.length === 0) { alert('لا يوجد طلاب غائبين في هذه المجموعة اليوم! 🎉'); return; }
-
-        const payload = [];
-        absentStudents.forEach(student => {
-            let targetPhone = (student.parentPhone && student.parentPhone.trim() !== '') ? student.parentPhone : student.studentPhone;
-            if (targetPhone && targetPhone.trim() !== '') {
-                payload.push({
-                    name: student.name,
-                    phone: targetPhone,
-                    message: `السلام عليكم، نحيطكم علمًا بأن الطالب/ة (${student.name}) غائب اليوم عن حصة ${group.name}. نرجو المتابعة.`
-                });
-            }
-        });
-
-        if (payload.length === 0) { alert('لم يتم العثور على أرقام هواتف مسجلة للطلاب الغائبين.'); return; }
-
-        const statusBox = document.getElementById('status-notification');
-        statusBox.style.display = 'block';
-        statusBox.style.backgroundColor = '#d97706';
-        statusBox.style.color = 'white';
-        statusBox.innerText = `⏳ جاري إرسال ${payload.length} رسالة عبر السيرفر...`;
-
-        let successCount = 0;
-        for (const item of payload) {
-            try {
-                const response = await fetch('http://localhost:3000/send-message', {
-                    method: 'POST',
-                    headers: { 'Content-Type': 'application/json' },
-                    body: JSON.stringify({ number: item.phone, message: item.message })
-                });
-                if (response.ok) successCount++;
-            } catch (err) { console.error("خطأ إرسال:", err); }
-        }
-
-        if (successCount > 0) {
-            statusBox.style.backgroundColor = '#16a34a';
-            statusBox.innerText = `🚀 تم إرسال ${successCount} من أصل ${payload.length} رسالة غياب بنجاح!`;
-        } else {
-            statusBox.style.backgroundColor = '#dc2626';
-            statusBox.innerText = '❌ فشل الاتصال بالسيرفر! تأكد أن سيرفر Termux يعمل على البورت 3000.';
-        }
-        setTimeout(() => { statusBox.style.display = 'none'; }, 6000);
-    }
-
-    function showGroupExamsPage() {
-        switchView('group-exams-view');
-        renderGroupExams();
-    }
-
-    function renderGroupExams() {
-        const center = appData.centers[selectedCenter];
-        const group = center.groups[selectedGroup];
-
-        document.getElementById('breadcrumb').innerHTML = `
-            <span onclick="showCenters()">الرئيسية</span> / 
-            <span onclick="showGroups(${selectedCenter})">${center.name}</span> / 
-            <span onclick="showStudents(${selectedGroup})">${group.name}</span> / 
-            <b>رصد الامتحانات</b>
-        `;
-        document.getElementById('group-exams-title').innerText = `📝 رصد امتحانات مجموعة (${group.name})`;
-
-        const tbody = document.getElementById('group-exams-table-body');
-        tbody.innerHTML = '';
-        if (group.students.length === 0) {
-            tbody.innerHTML = '<tr><td colspan="3" style="text-align:center;">لا يوجد طلاب في هذه المجموعة بعد.</td></tr>';
-            return;
-        }
-
-        group.students.forEach((student, sIndex) => {
-            const codeStr = formatStudentCode(sIndex + 1);
-            tbody.innerHTML += `
-                <tr>
-                    <td><span class="student-code">${codeStr}</span><b>${student.name}</b></td>
-                    <td><input type="number" class="score-input bulk-score-input" data-student-index="${sIndex}" placeholder="الدرجة"></td>
-                    <td><span class="bulk-max-display">20</span></td>
-                </tr>`;
-        });
-
-        document.getElementById('bulk-exam-max').addEventListener('input', function() {
-            const maxVal = this.value || 0;
-            document.querySelectorAll('.bulk-max-display').forEach(el => el.innerText = maxVal);
-        });
-    }
-
-    function saveBulkExams() {
-        const group = appData.centers[selectedCenter].groups[selectedGroup];
-        const examType = document.getElementById('bulk-exam-type').value;
-        const examMax = parseFloat(document.getElementById('bulk-exam-max').value);
-        const examTitleExtra = document.getElementById('bulk-exam-title').value.trim();
-
-        if (isNaN(examMax) || examMax <= 0) { alert('برجاء كتابة درجة عظمى صحيحة.'); return; }
-
-        const fullTitle = examTitleExtra ? `${examType} - ${examTitleExtra}` : examType;
-        const scoreInputs = document.querySelectorAll('.bulk-score-input');
-        const currentDate = new Date().toLocaleDateString('ar-EG') + ' ' + new Date().toLocaleTimeString('ar-EG', {hour: '2-digit', minute:'2-digit'});
-        let countSaved = 0;
-
-        scoreInputs.forEach(input => {
-            const val = input.value.trim();
-            if (val !== '') {
-                const scoreNum = parseFloat(val);
-                const studentIndex = parseInt(input.getAttribute('data-student-index'));
-                if (!isNaN(scoreNum)) {
-                    if (!group.students[studentIndex].exams) { group.students[studentIndex].exams = []; }
-                    group.students[studentIndex].exams.push({ title: fullTitle, score: scoreNum, max: examMax, date: currentDate });
-                    countSaved++;
-                }
-            }
-        });
-
-        if (countSaved > 0) {
+            centerData.teachers.push({ name, subject });
             saveData();
-            alert(`تم حفظ درجات ${countSaved} طالب بنجاح! 🎉`);
-            showStudents(selectedGroup);
-        } else {
-            alert('لم تقم بإدخال أي درجة للطلاب.');
+            renderTeacherStats();
+            document.getElementById('teacher-name').value = '';
+            document.getElementById('teacher-subject').value = '';
         }
     }
 
-    function openOldExamsModal() {
-        const group = appData.centers[selectedCenter].groups[selectedGroup];
-        const content = document.getElementById('old-exams-content');
-        content.innerHTML = '';
-        let allExamsMap = {};
+    function renderTeacherStats() {
+        const tbody = document.getElementById('teachers-stats-table');
+        tbody.innerHTML = centerData.teachers.map((t, i) => {
+            const teacherFinances = centerData.finances.filter(f => f.teacher === t.name);
+            const totalStudents = teacherFinances.reduce((acc, f) => acc + (f.totalStudents || 0), 0);
+            const totalTeacherIncome = teacherFinances.reduce((acc, f) => acc + (f.teacherAmount || 0), 0);
 
-        group.students.forEach(student => {
-            if(student.exams && student.exams.length > 0) {
-                student.exams.forEach(ex => {
-                    const key = ex.title + '___' + (ex.date || 'تاريخ غير مدون');
-                    if(!allExamsMap[key]) {
-                        allExamsMap[key] = { title: ex.title, date: ex.date || 'غير محدد', max: ex.max, records: [] };
-                    }
-                    allExamsMap[key].records.push({ name: student.name, score: ex.score });
-                });
-            }
-        });
+            return `
+                <tr>
+                    <td><b>${t.name}</b></td>
+                    <td>${t.subject || 'غير محدد'}</td>
+                    <td>${totalStudents} طالب</td>
+                    <td style="color: #16a34a; font-weight: bold;">${totalTeacherIncome.toFixed(1)} ج.م</td>
+                    <td><button class="btn btn-danger" onclick="deleteTeacher(${i})">حذف</button></td>
+                </tr>
+            `;
+        }).join('');
+    }
 
-        const examKeys = Object.keys(allExamsMap);
-        if(examKeys.length === 0) {
-            content.innerHTML = '<p style="text-align:center; padding: 15px;">لا توجد امتحانات سابقة مرصودة لهذه المجموعة.</p>';
-        } else {
-            examKeys.forEach(key => {
-                const ex = allExamsMap[key];
-                let rows = ex.records.map(r => `<tr><td>${r.name}</td><td><b>${r.score}</b> / ${ex.max}</td></tr>`).join('');
-                content.innerHTML += `
-                    <div style="border:1px solid var(--border-color); padding:10px; border-radius:8px; margin-bottom:12px;">
-                        <h4 style="color:#2563eb;">📌 ${ex.title}</h4>
-                        <p style="font-size:0.8rem; color:var(--subtext-color); margin-bottom:6px;">📅 التاريخ: ${ex.date}</p>
-                        <div class="table-container"><table><thead><tr><th>اسم الطالب</th><th>الدرجة</th></tr></thead><tbody>${rows}</tbody></table></div>
-                    </div>
-                `;
-            });
+    function deleteTeacher(i) {
+        if(confirm('مسح هذا المدرس؟')) {
+            centerData.teachers.splice(i, 1);
+            saveData();
+            renderTeacherStats();
         }
-        document.getElementById('old-exams-modal').classList.add('active');
     }
 
-    function closeOldExamsModal() {
-        document.getElementById('old-exams-modal').classList.remove('active');
+    // --- 4. الإعدادات والقاعات ---
+    function addHall() {
+        const name = document.getElementById('hall-name').value.trim();
+        if(name) {
+            centerData.halls.push(name);
+            saveData();
+            document.getElementById('hall-name').value = '';
+        }
     }
 
-    function showCenters() { switchView('centers-view'); renderCenters(); }
+    function renderHallsList() {
+        const div = document.getElementById('halls-list');
+        if(div) {
+            div.innerHTML = centerData.halls.map((h, i) => `
+                <span style="background: var(--border-color); padding: 5px 10px; border-radius: 5px; font-size: 0.85rem; display: flex; align-items: center; gap: 5px;">
+                    ${h} <b style="color: red; cursor: pointer;" onclick="deleteHall(${i})">×</b>
+                </span>
+            `).join('');
+        }
+    }
 
-    applyBranding();
+    function deleteHall(i) {
+        centerData.halls.splice(i, 1);
+        saveData();
+    }
+
+    function saveSettings() {
+        centerData.settings.openTime = document.getElementById('center-open-time').value;
+        centerData.settings.closeTime = document.getElementById('center-close-time').value;
+        saveData();
+        alert('تم حفظ إعدادات السنتر بنجاح!');
+    }
+
+    // التهيئة البدائية عند الفتح
     initTheme();
-    renderCenters();
+    refreshDropdowns();
+    renderSchedules();
+    renderFinances();
+    renderTeacherStats();
+</script>
+<script>
+  // تسجيل الـ Service Worker لتفعيل الـ PWA والتثبيت على الأندرويد
+  if ('serviceWorker' in navigator) {
+    window.addEventListener('load', () => {
+      navigator.serviceWorker.register('./sw.js')
+        .then((reg) => console.log('PWA Service Worker Registered! Scope:', reg.scope))
+        .catch((err) => console.error('PWA Registration Failed:', err));
+    });
+  }
 </script>
 </body>
 </html>
